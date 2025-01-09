@@ -4,7 +4,7 @@ source test-utils.sh
 
 # Template specific tests
 check "distro" lsb_release -c
-check "color" [ $(cat /tmp/color.txt | grep red) ]
+check "color" [ $(python -V | grep 3.13) ]
 
 # Report result
 reportResults
