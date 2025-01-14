@@ -12,7 +12,7 @@ jobs:
         id: filter
         with:
           filters: |
-            color: ./**/color/**
+            python: ./**/python/**
             hello: ./**/hello/**
 
   test:

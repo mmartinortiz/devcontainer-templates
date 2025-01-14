@@ -1,0 +1,31 @@
+{
+    "id": "python",
+    "version": "1.0.0",
+    "name": "Python",
+    "description": "An opinionated and perosnal image for Python development",
+    "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/python",
+    "licenseURL": "https://github.com/mmartinortiz/devcontainer-templates/blob/main/LICENSE",
+    "options": {
+        "pythonVersion": {
+            "type": "string",
+            "description": "Python verison to be used:",
+            "proposals": [
+                "3.13",
+                "3.12"
+            ],
+            "default": "3.13"
+        },
+        "imageVariant": {
+            "type": "string",
+            "description": "Debian version (use bullseye on local arm64/Apple Silicon):",
+            "proposals": [
+                "bookworm",
+                "bullseye"
+            ],
+            "default": "bookworm"
+        }
+    },
+    "platforms": [
+        "Any"
+    ]
+}
