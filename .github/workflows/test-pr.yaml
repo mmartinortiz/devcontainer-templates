@@ -13,7 +13,6 @@ jobs:
         with:
           filters: |
             python: ./**/python/**
-            hello: ./**/hello/**
 
   test:
     needs: [detect-changes]
