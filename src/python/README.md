@@ -27,7 +27,7 @@ Extensions like:
 - [Markdown all in one](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
 - [Code Spell Cheker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)
 
-Settings like:
+Settings for VS Code like:
 
 - Format Python code with Ruff
 - Format on save
@@ -40,15 +40,15 @@ Settings like:
 Practical example:
 
 ```bash
-# Create a project called pyfoo, adjust `uv init` to your needs
-uv init pyfoo && cd pyfoo
-# Delete the just created .venv to use the interpreter from the devcontainer
-rm -fr .venv
+# Create a repo for your project
+mkdir pyfoo && cd pyfoo
+# Not mandatory, but nice if you use a VCS, like Git
+git init
 # Apply the template using the devcontainer-cli
 devcontainer templates apply --template-id ghcr.io/mmartinortiz/devcontainer-templates/python
 ```
 
-This will create a basic structure using `uv`, and apply this template to enable development using devcontainer.
+Now you can build the devcontainer template for your Python project.
 
 
 ---
