@@ -14,7 +14,8 @@
 				"njpwerner.autodocstring",
 				"charliermarsh.ruff",
 				"tamasfe.even-better-toml",
-				"yzhang.markdown-all-in-one"
+				"yzhang.markdown-all-in-one",
+				"streetsidesoftware.code-spell-checker"
 			],
 			"settings": {
 				"[python]": {
