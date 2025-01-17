@@ -7,5 +7,7 @@ echo "
 starship init fish | source
 " >> ~/.config/fish/config.fish
 
-uv generate-shell-completion fish > ~/.config/fish/completions/uv.fish
-uv sync --all-groups --link-mode=copy
+if [ -e pyproject.toml ]; then
+    uv generate-shell-completion fish > ~/.config/fish/completions/uv.fish
+    uv sync --all-groups --link-mode=copy
+fi
