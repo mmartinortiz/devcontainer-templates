@@ -2,7 +2,7 @@
     "id": "python",
     "version": "1.0.1",
     "name": "Python",
-    "description": "An opinionated and perosnal image for Python development",
+    "description": "An opinionated and personal image for Python development",
     "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/python",
     "licenseURL": "https://github.com/mmartinortiz/devcontainer-templates/blob/main/LICENSE",
     "options": {
