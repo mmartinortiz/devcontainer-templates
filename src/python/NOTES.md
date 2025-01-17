@@ -1,4 +1,4 @@
-# Using this template
+## Using this template
 
 Practical example:
 
