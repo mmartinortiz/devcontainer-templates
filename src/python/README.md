@@ -10,7 +10,7 @@ An opinionated and perosnal image for Python development
 | pythonVersion | Python verison to be used: | string | 3.13 |
 | imageVariant | Debian version (use bullseye on local arm64/Apple Silicon): | string | bookworm |
 
-# Using this template
+## Using this template
 
 Practical example:
 
