@@ -1,6 +1,6 @@
 {
     "id": "python",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "name": "Python",
     "description": "An opinionated and personal image for Python development",
     "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/python",
