@@ -2,11 +2,39 @@
 	"name": "Python",
 	"image": "mcr.microsoft.com/devcontainers/python:1-${templateOption:pythonVersion}-${templateOption:imageVariant}",
 	"features": {
+		// Uncomment to include the pre-commit feature
+		// "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
 		"ghcr.io/devcontainers-extra/features/starship:1": {},
 		"ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {},
 		"ghcr.io/va-h/devcontainers-features/uv:1": {}
 	},
-	"postCreateCommand": ".devcontainer/postCreateCommand.sh",
+	"initializeCommand": {
+		"create host uv cache dir": "mkdir -p ~/.cache/uv"
+	},
+	"onCreateCommand": {
+		// Uncomment the next line to install tox for testing
+		// "uv tox": "uv tool install tox --with tox-uv",
+		// Uncomment the next lines to enable pre-commit
+		// "pre-commit sample config": "if [ ! -e .pre-commit-config.yaml ]; then pre-commit sample-config > .pre-commit-config.yaml; fi",
+		// "pre-commit": "if [ -e .pre-commit-config.yaml ]; then pre-commit install --install-hooks; fi",
+		"starship eyecandy": ".devcontainer/starship-eyecandy.sh"
+	},
+	"updateContentCommand": {
+		"sync dependencies": "if [ -e uv.lock ]; then uv sync --locked --all-groups; fi",
+		"uv completions": "if [ -e pyproject.toml ]; then uv generate-shell-completion fish > ~/.config/fish/completions/uv.fish; fi"
+	},
+	"postCreateCommand": "",
+	"containerEnv": {
+		"UV_CACHE_PATH": "/home/vscode/.uv_cache",
+		"UV_LINK_MODE": "symlink"
+	},
+	"mounts": [
+		{
+			"source": "${localEnv:HOME}/.cache/uv",
+			"target": "/home/vscode/.uv_cache",
+			"type": "bind"
+		}
+	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
