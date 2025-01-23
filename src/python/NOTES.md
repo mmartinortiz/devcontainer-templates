@@ -25,9 +25,7 @@ Settings for VS Code like:
 - Use Pytest
 - Default shell set to Fish
 
-## Using this template
-
-Practical example:
+## Using this template for a new project
 
 Create a directory for your project.
 
@@ -53,4 +51,12 @@ The first time the container start, there is nothing there besides the devcontai
 
 ```bash
 uv init --name mypackage --package --build-backend setuptools --no-pin-python --vcs git
+```
+
+## Using this template on an existing project
+
+If you have an existing project, you can use this template to add the devcontainer to it. Just copy the `.devcontainer` folder and its content into your project's root folder or use the `devcontainer` cli. Modify the `.devcontainer/devcontainer.json` file to fit your project's setup (tox, pre-commit, venv path, etc). Keep in mind that the template provides `uv`, if your current project uses `poetry` or just `pip`, you will also need to change your `pyproject.toml` file if you want to start using `uv`.
+
+```bash
+devcontainer templates apply --template-id ghcr.io/mmartinortiz/devcontainer-templates/python
 ```
