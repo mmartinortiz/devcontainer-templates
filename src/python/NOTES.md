@@ -29,18 +29,28 @@ Settings for VS Code like:
 
 Practical example:
 
+Create a directory for your project.
+
 ```bash
-# Create a repo for your project
 mkdir pyfoo && cd pyfoo
+```
 
-# Apply the template using the devcontainer-cli
+Apply the template using the devcontainer-cli. This will download this template and save it locally, you will need to have installed the [devcontainer-cli](https://github.com/devcontainers/cli). If you do not have it or do not want to install it, just download the `.devcontainer` folder and its content into your project's root folder.
+
+```bash
 devcontainer templates apply --template-id ghcr.io/mmartinortiz/devcontainer-templates/python
+```
 
-# Create a project named mypackage using uv
-uv init --name mypackage --package --build-backend setuptools --no-pin-python --vcs git
+Use an IDE with Devcontainers support like VS Code. If you is PyCharm, just be aware that the settings of this template will have to be changed to PyCharm style.
 
-# Use an IDE with Devcontainers support like VS Code
+VS Code will ask you to reopen the project in the container, click on the button and the devcontainer will be built. This template is a starting point, from here, modify the `.devcontainer/devcontainer.json` file to fit your project's needs.
+
+```bash
 code .
 ```
 
-VS Code will ask you to reopen the project in the container, click on the button and you are ready to go. This tempalte is a starting point, from here, modify the `.devcontainer/devcontainer.json` file to fit your project's needs.
+The first time the container start, there is nothing there besides the devcontainer definition, but all the tools are ready to be used. Remember to uncomment `tox` and/or `pre-commit` in the `devcontainer.json` if you want to use it for testing. Start creating a new project with `uv`, add some packages for your project, etc.
+
+```bash
+uv init --name mypackage --package --build-backend setuptools --no-pin-python --vcs git
+```
