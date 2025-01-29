@@ -1,0 +1,8 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.2.0"
+version_files = [
+    "devcontainer-template.json"
+]
+update_changelog_on_bump = false
+tag_format = "template_python_${version}"
