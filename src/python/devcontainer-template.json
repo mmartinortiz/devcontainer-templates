@@ -11,7 +11,8 @@
             "description": "Python verison to be used:",
             "proposals": [
                 "3.13",
-                "3.12"
+                "3.12",
+                "3.11"
             ],
             "default": "3.13"
         },
