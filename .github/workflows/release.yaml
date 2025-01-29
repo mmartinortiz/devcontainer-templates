@@ -1,5 +1,6 @@
 name: "Release Dev Container Templates & Generate Documentation"
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -7,27 +8,6 @@ on:
       - 'src/**'
 
 jobs:
-  bump_version:
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
-    runs-on: ubuntu-latest
-    name: "Bump version and create changelog with commitizen"
-    steps:
-      - name: Check out
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Create bump
-        uses: commitizen-tools/commitizen-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          working_directory: src/python
-          changelog: false
-
-      - name: Print Version
-        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
-
   deploy:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
