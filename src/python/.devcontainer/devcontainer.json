@@ -17,6 +17,7 @@
 		// Uncomment the next lines to enable pre-commit
 		// "pre-commit sample config": "if [ ! -e .pre-commit-config.yaml ]; then pre-commit sample-config > .pre-commit-config.yaml; fi",
 		// "pre-commit": "if [ -e .pre-commit-config.yaml ]; then pre-commit install --install-hooks; fi",
+		"create venv": "uv venv",
 		"starship eyecandy": ".devcontainer/starship-eyecandy.sh"
 	},
 	"updateContentCommand": {
@@ -25,7 +26,7 @@
 	},
 	"postCreateCommand": "",
 	"containerEnv": {
-		"UV_CACHE_PATH": "/home/vscode/.uv_cache",
+		"UV_CACHE_DIR": "/home/vscode/.uv_cache",
 		"UV_LINK_MODE": "symlink"
 	},
 	"mounts": [
