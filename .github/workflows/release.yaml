@@ -1,6 +1,5 @@
 name: "Release Dev Container Templates & Generate Documentation"
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -25,8 +24,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           working_directory: src/python
           changelog: false
-          increment: MINOR
-          dry_run: true
 
       - name: Print Version
         run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
