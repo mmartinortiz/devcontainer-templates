@@ -12,7 +12,8 @@
 			"extensions": [
 				"mads-hartmann.bash-ide-vscode",
 				"dbaeumer.vscode-eslint",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"tamasfe.even-better-toml"
 			]
 		}
 	},
