@@ -28,5 +28,8 @@
     },
     "platforms": [
         "Any"
+    ],
+    "optionalPaths": [
+        ".cz.toml"
     ]
 }

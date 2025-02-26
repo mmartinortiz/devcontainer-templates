@@ -9,7 +9,8 @@
 		"ghcr.io/va-h/devcontainers-features/uv:1": {}
 	},
 	"initializeCommand": {
-		"create host uv cache dir": "mkdir -p ~/.cache/uv"
+		"create host uv cache dir": "mkdir -p ~/.cache/uv",
+		"create permanent fish history": "mkdir -p ~/.devcontainer/${devcontainerId} && touch ~/.devcontainer/${devcontainerId}/fish_history"
 	},
 	"onCreateCommand": {
 		// Uncomment the next line to install tox for testing
@@ -33,6 +34,11 @@
 		{
 			"source": "${localEnv:HOME}/.cache/uv",
 			"target": "/home/vscode/.uv_cache",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:HOME}/.devcontainer/${devcontainerId}/fish_history",
+			"target": "/home/vscode/.local/share/fish/fish_history",
 			"type": "bind"
 		}
 	],
