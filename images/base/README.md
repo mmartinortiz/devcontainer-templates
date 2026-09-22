@@ -3,7 +3,7 @@
 Opinionated Ubuntu-based Dev Container base image (`mcr.microsoft.com/devcontainers/base:ubuntu`) with:
 
 - [Fish shell](https://fishshell.com/) (apt), set as the default shell for the `vscode` user
-- [vim](https://www.vim.org/) (apt)
+- [vim](https://www.vim.org/) (apt), configured with line numbers, wrapped text, and a blinking bar cursor in insert mode (see `vimrc.local`)
 - [uv / uvx](https://docs.astral.sh/uv/) (copied from `ghcr.io/astral-sh/uv`), with fish completions
 - [Starship](https://starship.rs/) prompt (pinned GitHub release binary)
 - [prek](https://github.com/j178/prek) (installed via `uv tool install`), with fish completions

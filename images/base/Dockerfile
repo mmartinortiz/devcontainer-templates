@@ -22,6 +22,11 @@ RUN apt-get update \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
+# Vim defaults: line numbers, wrap, blinking bar cursor in insert mode.
+# Ubuntu's packaged /etc/vim/vimrc sources /etc/vim/vimrc.local if present, so this
+# applies system-wide without touching the package-managed vimrc.
+COPY vimrc.local /etc/vim/vimrc.local
+
 # uv / uvx, copied from the official distroless image.
 COPY --from=uv /uv /uvx /usr/local/bin/
 

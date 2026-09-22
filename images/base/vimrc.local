@@ -1,0 +1,13 @@
+" Show line numbers.
+set number
+
+" Wrap long lines (Vim's default; set explicitly for clarity/future-proofing).
+set wrap
+
+" Insert mode: blinking vertical bar cursor. Other modes: blinking block.
+" Uses DECSCUSR terminal escape sequences, supported by most modern terminal
+" emulators (including VS Code's integrated terminal).
+if has('cursorshape')
+  let &t_SI = "\<Esc>[5 q"
+  let &t_EI = "\<Esc>[1 q"
+endif
