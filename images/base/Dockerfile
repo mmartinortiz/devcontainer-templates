@@ -7,6 +7,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 # Re-declare after FROM (build args are scoped per stage).
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.3
+ARG OPENCODE_VERSION=1.18.32
 
 USER root
 
@@ -37,6 +38,21 @@ RUN set -eux; \
     tar -xzf /tmp/starship.tar.gz -C /usr/local/bin starship; \
     rm /tmp/starship.tar.gz; \
     chmod +x /usr/local/bin/starship
+
+# opencode: fetch the pinned GitHub release tarball for the current architecture.
+# Assets are glibc builds (matching this Ubuntu base); musl/baseline variants exist but aren't needed here.
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in \
+        amd64) OC_ARCH=linux-x64 ;; \
+        arm64) OC_ARCH=linux-arm64 ;; \
+        *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL \
+        "https://github.com/anomalyco/opencode/releases/download/v${OPENCODE_VERSION}/opencode-${OC_ARCH}.tar.gz" \
+        -o /tmp/opencode.tar.gz; \
+    tar -xzf /tmp/opencode.tar.gz -C /usr/local/bin opencode; \
+    rm /tmp/opencode.tar.gz; \
+    chmod +x /usr/local/bin/opencode
 
 # Fish completions for uv (uvx has no completion generator of its own; it proxies to `uv tool run`).
 RUN mkdir -p /usr/share/fish/vendor_completions.d \

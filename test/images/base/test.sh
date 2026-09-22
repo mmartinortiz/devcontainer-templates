@@ -43,6 +43,7 @@ check "uv is available" run uv --version
 check "uvx is available" run uvx --version
 check "starship is available" run starship --version
 check "prek is available" run prek --version
+check "opencode is available" run opencode --version
 check "vim is available" run vim --version
 check "fish is available" run fish --version
 
