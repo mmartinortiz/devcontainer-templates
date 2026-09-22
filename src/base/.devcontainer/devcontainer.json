@@ -1,0 +1,31 @@
+{
+	"name": "Base",
+	"image": "ghcr.io/mmartinortiz/devcontainer-images/base:latest",
+	"features": {
+		// Add language/runtime-specific features here, e.g.:
+		// "ghcr.io/devcontainers/features/node:1": {}
+	},
+	"initializeCommand": {
+		"create host uv cache dir": "mkdir -p ~/.cache/uv",
+		"create permanent fish history": "mkdir -p ~/.devcontainer/${devcontainerId} && touch ~/.devcontainer/${devcontainerId}/fish_history"
+	},
+	"onCreateCommand": {
+		"prek": "if [ -e .pre-commit-config.yaml ] && [ -d .git ]; then prek install --install-hooks; fi",
+		"shell setup": ".devcontainer/setup.sh"
+	},
+	"containerEnv": {
+		"UV_CACHE_DIR": "/home/vscode/.uv_cache"
+	},
+	"mounts": [
+		{
+			"source": "${localEnv:HOME}/.cache/uv",
+			"target": "/home/vscode/.uv_cache",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:HOME}/.devcontainer/${devcontainerId}/fish_history",
+			"target": "/home/vscode/.local/share/fish/fish_history",
+			"type": "bind"
+		}
+	]
+}

@@ -1,0 +1,3 @@
+[container]
+style = "bold #E1AD01"
+format = '[$symbol \[${templateOption:projectName}\]]($style) '
