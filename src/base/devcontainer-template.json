@@ -1,6 +1,6 @@
 {
     "id": "base",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "name": "Base",
     "description": "A general-purpose devcontainer template using this repo's own base image (fish, vim, uv, starship, prek, opencode)",
     "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/base",
