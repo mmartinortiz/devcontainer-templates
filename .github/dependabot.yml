@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # GitHub Actions only. The `docker` ecosystem is deliberately excluded: the sole
+  # updatable image ref in images/base/Dockerfile is ghcr.io/astral-sh/uv via
+  # ARG UV_IMAGE_TAG, which .github/workflows/update-base-image-versions.yaml already
+  # bumps weekly (alongside the images/base/README.md table and a pre-PR build + smoke
+  # test). The other FROM, mcr.microsoft.com/devcontainers/base:ubuntu, is an
+  # intentionally floating tag that Dependabot cannot version.
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels:
+      - dependencies
+      - github_actions
+    commit-message:
+      prefix: "ci"
