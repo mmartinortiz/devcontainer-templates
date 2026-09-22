@@ -5,6 +5,18 @@
     "description": "An opinionated and personal image for Python development",
     "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/python",
     "licenseURL": "https://github.com/mmartinortiz/devcontainer-templates/blob/main/LICENSE",
+    "options": {
+        "pythonVersion": {
+            "type": "string",
+            "description": "Python version to be used:",
+            "proposals": [
+                "3.13",
+                "3.12",
+                "3.11"
+            ],
+            "default": "3.13"
+        }
+    },
     "platforms": [
         "Any"
     ]

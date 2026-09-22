@@ -3,6 +3,12 @@
 
 An opinionated and personal image for Python development
 
+## Options
+
+| Options Id | Description | Type | Default Value |
+|-----|-----|-----|-----|
+| pythonVersion | Python version to be used: | string | 3.13 |
+
 ## What it brings
 
 Features like:
