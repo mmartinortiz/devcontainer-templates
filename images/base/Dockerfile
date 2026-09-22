@@ -81,6 +81,18 @@ RUN uv tool install "prek${PREK_VERSION:+==${PREK_VERSION}}" \
     && chmod -R o+rX /opt/uv-tools \
     && COMPLETE=fish prek > /usr/share/fish/vendor_completions.d/prek.fish
 
+# Pre-create the XDG dirs owned by vscode. Docker creates missing parent directories of
+# bind/volume mount targets as root:root, so a consumer mounting e.g.
+# ~/.local/share/opencode would otherwise leave ~/.local root-owned and unwritable,
+# breaking tools that write to ~/.local/state (opencode: EACCES mkdir).
+RUN install -d -o vscode -g vscode \
+        /home/vscode/.local \
+        /home/vscode/.local/bin \
+        /home/vscode/.local/share \
+        /home/vscode/.local/state \
+        /home/vscode/.cache \
+        /home/vscode/.config
+
 # Default user setup: fish as default shell, ~/.local/bin on PATH.
 RUN chsh --shell "$(command -v fish)" vscode
 ENV PATH="/home/vscode/.local/bin:${PATH}"
