@@ -21,11 +21,16 @@ Reference the published image directly in your `devcontainer.json`:
 
 Each merge to `main` also publishes a calendar-version tag (`YYYY.MM.DD`, UTC) alongside `latest`, e.g. `ghcr.io/mmartinortiz/devcontainer-images/base:2026.09.22`, so you can pin to a specific build if needed. Tags older than 3 months are pruned automatically by a monthly cleanup workflow (`latest` is never deleted).
 
-The image also carries an `org.opencontainers.image.description` label listing the exact `uv`/`starship`/`prek`/`opencode` versions it was built with — check it via:
+The image also carries an `org.opencontainers.image.description` describing the exact `uv`/`starship`/`prek`/`opencode` versions it was built with. Since the published image is multi-arch, this is set in two places:
 
-```bash
-docker inspect ghcr.io/mmartinortiz/devcontainer-images/base:latest --format '{{.Config.Labels}}'
-```
+- As a `LABEL` on each platform's image config — inspect it after pulling:
+  ```bash
+  docker inspect ghcr.io/mmartinortiz/devcontainer-images/base:latest --format '{{.Config.Labels}}'
+  ```
+- As an OCI annotation on the manifest list (index) and each platform manifest — this is what GHCR's package page reads to show the description, and can be checked without pulling anything:
+  ```bash
+  docker buildx imagetools inspect ghcr.io/mmartinortiz/devcontainer-images/base:latest --raw
+  ```
 
 ## Build arguments
 
