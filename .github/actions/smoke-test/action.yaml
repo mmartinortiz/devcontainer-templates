@@ -1,4 +1,5 @@
 name: 'Smoke test'
+description: 'Builds a template into a test devcontainer and runs its smoke test assertions'
 inputs:
   template:
     description: 'Template to test'
