@@ -58,7 +58,7 @@ check "fish is available" run fish --version
 
 # Default user / shell
 check "default user is vscode" bash -c "[ \"\$(run whoami)\" = 'vscode' ]"
-check "vscode's default shell is fish" bash -c "run bash -lc 'echo \$SHELL' | grep -q '/usr/bin/fish'"
+check "vscode's default shell is bash" bash -c "run bash -lc 'echo \$SHELL' | grep -qE '/(usr/)?bin/bash'"
 check "~/.local/bin is on PATH" bash -c "runFish 'echo \$PATH' | grep -q '/home/vscode/.local/bin'"
 
 # XDG dirs pre-created and owned by vscode (so Docker mounting e.g. ~/.local/share/opencode
