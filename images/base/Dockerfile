@@ -5,9 +5,18 @@ FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG} AS uv
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 # Re-declare after FROM (build args are scoped per stage).
+# UV_IMAGE_TAG has no default here: it's only used below to label the image with the
+# same value used to select the uv builder stage's FROM tag above.
+ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.3
 ARG OPENCODE_VERSION=1.18.32
+
+# OCI labels: bake the exact tool versions into the image so they're inspectable without
+# pulling and running each binary's --version (`docker inspect <image>` or GHCR's package page).
+LABEL org.opencontainers.image.title="devcontainer-base" \
+      org.opencontainers.image.description="Ubuntu dev container base image — uv/uvx ${UV_IMAGE_TAG}, starship ${STARSHIP_VERSION}, prek ${PREK_VERSION}, opencode ${OPENCODE_VERSION}" \
+      org.opencontainers.image.source="https://github.com/mmartinortiz/devcontainer-templates"
 
 USER root
 
