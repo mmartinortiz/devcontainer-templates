@@ -7,6 +7,7 @@ Opinionated Ubuntu-based Dev Container base image (`mcr.microsoft.com/devcontain
 - [uv / uvx](https://docs.astral.sh/uv/) (copied from `ghcr.io/astral-sh/uv`), with fish completions
 - [Starship](https://starship.rs/) prompt (pinned GitHub release binary)
 - [prek](https://github.com/j178/prek) (installed via `uv tool install`), with fish completions
+- [opencode](https://opencode.ai) (pinned GitHub release binary)
 
 ## Usage
 
@@ -27,6 +28,7 @@ Each merge to `main` also publishes a calendar-version tag (`YYYY.MM.DD`, UTC) a
 | `UV_IMAGE_TAG`    | `0.12.17` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
 | `STARSHIP_VERSION`| `1.26.0` | Starship GitHub release version to install (without the `v` prefix) |
 | `PREK_VERSION`    | `0.5.3`  | `prek` version to install from PyPI; leave empty to install the latest |
+| `OPENCODE_VERSION`| `1.18.32` | opencode GitHub release version to install (without the `v` prefix) |
 
 Build locally, e.g. to bump Starship:
 

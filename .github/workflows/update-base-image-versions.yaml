@@ -28,8 +28,9 @@ jobs:
           UV_VERSION="$(api https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r '.tag_name')"
           STARSHIP_VERSION="$(api https://api.github.com/repos/starship/starship/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
           PREK_VERSION="$(api https://api.github.com/repos/j178/prek/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
+          OPENCODE_VERSION="$(api https://api.github.com/repos/anomalyco/opencode/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
 
-          for name in UV_VERSION STARSHIP_VERSION PREK_VERSION; do
+          for name in UV_VERSION STARSHIP_VERSION PREK_VERSION OPENCODE_VERSION; do
             value="${!name}"
             if [ -z "${value}" ] || [ "${value}" = "null" ]; then
               echo "Failed to resolve ${name}" >&2
@@ -40,6 +41,7 @@ jobs:
           echo "uv=${UV_VERSION}" >> "$GITHUB_OUTPUT"
           echo "starship=${STARSHIP_VERSION}" >> "$GITHUB_OUTPUT"
           echo "prek=${PREK_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "opencode=${OPENCODE_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Update Dockerfile and README defaults
         run: |
@@ -49,12 +51,14 @@ jobs:
             -e "s/^ARG UV_IMAGE_TAG=.*/ARG UV_IMAGE_TAG=${{ steps.versions.outputs.uv }}/" \
             -e "s/^ARG STARSHIP_VERSION=.*/ARG STARSHIP_VERSION=${{ steps.versions.outputs.starship }}/" \
             -e "s/^ARG PREK_VERSION=.*/ARG PREK_VERSION=${{ steps.versions.outputs.prek }}/" \
+            -e "s/^ARG OPENCODE_VERSION=.*/ARG OPENCODE_VERSION=${{ steps.versions.outputs.opencode }}/" \
             images/base/Dockerfile
 
           sed -i \
             -e "s/| \`UV_IMAGE_TAG\`[^|]*|[^|]*|/| \`UV_IMAGE_TAG\`    | \`${{ steps.versions.outputs.uv }}\` |/" \
             -e "s/| \`STARSHIP_VERSION\`[^|]*|[^|]*|/| \`STARSHIP_VERSION\`| \`${{ steps.versions.outputs.starship }}\` |/" \
             -e "s/| \`PREK_VERSION\`[^|]*|[^|]*|/| \`PREK_VERSION\`    | \`${{ steps.versions.outputs.prek }}\`  |/" \
+            -e "s/| \`OPENCODE_VERSION\`[^|]*|[^|]*|/| \`OPENCODE_VERSION\`| \`${{ steps.versions.outputs.opencode }}\` |/" \
             images/base/README.md
 
       - name: Check for changes
@@ -99,6 +103,7 @@ jobs:
             | `uv`       | `${{ steps.versions.outputs.uv }}` |
             | `starship` | `${{ steps.versions.outputs.starship }}` |
             | `prek`     | `${{ steps.versions.outputs.prek }}` |
+            | `opencode` | `${{ steps.versions.outputs.opencode }}` |
 
             The bumped image was built and passed `test/images/base/test.sh` before this PR was opened.
           branch: chore/bump-base-image-deps
