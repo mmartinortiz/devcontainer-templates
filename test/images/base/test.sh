@@ -35,7 +35,15 @@ runFish() {
     docker run --rm "${IMAGE_TAG}" fish -c "$1"
 }
 
-export -f run runFish
+vimSetting() {
+    docker run --rm "${IMAGE_TAG}" bash -c "
+        echo test > /tmp/vim-test.txt
+        vim --not-a-term -c 'redir! > /tmp/vim-out' -c '$1' -c 'redir END' -c 'quit!' /tmp/vim-test.txt >/dev/null 2>&1
+        cat /tmp/vim-out
+    "
+}
+
+export -f run runFish vimSetting
 export IMAGE_TAG
 
 # Tool availability
@@ -55,6 +63,12 @@ check "~/.local/bin is on PATH" bash -c "runFish 'echo \$PATH' | grep -q '/home/
 # Fish completions
 check "uv fish completions exist" run test -s /usr/share/fish/vendor_completions.d/uv.fish
 check "prek fish completions exist" run test -s /usr/share/fish/vendor_completions.d/prek.fish
+
+# Vim defaults
+check "vim shows line numbers by default" bash -c "vimSetting 'set number?' | grep -qx '  number'"
+check "vim wraps long lines by default" bash -c "vimSetting 'set wrap?' | grep -qx '  wrap'"
+check "vim uses a blinking bar cursor in insert mode" bash -c "vimSetting 'echo strtrans(&t_SI)' | grep -qF '^[[5 q'"
+check "vim reverts to a blinking block cursor outside insert mode" bash -c "vimSetting 'echo strtrans(&t_EI)' | grep -qF '^[[1 q'"
 
 # Report result
 reportResults
