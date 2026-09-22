@@ -57,6 +57,16 @@ jobs:
         id: calver
         run: echo "tag=$(date -u +'%Y.%m.%d')" >> "$GITHUB_OUTPUT"
 
+      - name: Compute image description from Dockerfile ARG defaults
+        id: description
+        run: |
+          set -euo pipefail
+          UV=$(grep -m1 '^ARG UV_IMAGE_TAG=' images/base/Dockerfile | cut -d= -f2)
+          STARSHIP=$(grep -m1 '^ARG STARSHIP_VERSION=' images/base/Dockerfile | cut -d= -f2)
+          PREK=$(grep -m1 '^ARG PREK_VERSION=' images/base/Dockerfile | cut -d= -f2)
+          OPENCODE=$(grep -m1 '^ARG OPENCODE_VERSION=' images/base/Dockerfile | cut -d= -f2)
+          echo "text=Ubuntu dev container base image — uv/uvx ${UV}, starship ${STARSHIP}, prek ${PREK}, opencode ${OPENCODE}" >> "$GITHUB_OUTPUT"
+
       - name: Build (and push on main) base image
         uses: docker/build-push-action@v6
         with:
@@ -66,3 +76,4 @@ jobs:
           tags: |
             ghcr.io/mmartinortiz/devcontainer-images/base:latest
             ghcr.io/mmartinortiz/devcontainer-images/base:${{ steps.calver.outputs.tag }}
+          annotations: ${{ github.event_name != 'pull_request' && format('index,manifest:org.opencontainers.image.description={0}', steps.description.outputs.text) || '' }}
