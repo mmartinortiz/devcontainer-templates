@@ -39,6 +39,5 @@
         "tamasfe.even-better-toml"
       ]
     }
-  },
-  "postCreateCommand": ".devcontainer/postCreateCommand.sh"
+  }
 }
