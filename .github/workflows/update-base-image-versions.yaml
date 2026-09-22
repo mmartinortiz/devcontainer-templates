@@ -5,6 +5,10 @@ on:
     - cron: "0 3 * * 1" # every Monday at 03:00 UTC
   workflow_dispatch: {}
 
+concurrency:
+  group: bump-base-image-deps
+  cancel-in-progress: false
+
 jobs:
   bump:
     runs-on: ubuntu-latest
@@ -12,7 +16,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Resolve latest dependency versions
         id: versions
@@ -90,7 +94,7 @@ jobs:
 
       - name: Open pull request
         if: steps.diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore(images): bump base image dependencies to latest"

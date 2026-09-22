@@ -1,0 +1,53 @@
+name: "CI - Base Image"
+on:
+  pull_request:
+    paths:
+      - "images/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for testing (single-arch, loaded into local Docker)
+        uses: docker/build-push-action@v6
+        with:
+          context: images/base
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: devcontainer-base-test
+
+      - name: Run smoke tests
+        run: test/images/base/test.sh devcontainer-base-test
+
+  build-multi-arch:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build multi-arch image (no push, catches arm64-only breakage)
+        uses: docker/build-push-action@v6
+        with:
+          context: images/base
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: devcontainer-base-multiarch-test

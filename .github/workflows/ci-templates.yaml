@@ -1,0 +1,69 @@
+name: "CI - Templates"
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-templates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      templates: ${{ steps.detect.outputs.templates }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/detect-templates
+        id: detect
+
+  validate:
+    needs: [detect]
+    if: needs.detect.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJSON(needs.detect.outputs.templates) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate '${{ matrix.template }}'
+        run: .github/scripts/validate-template.sh "${{ matrix.template }}" "${{ github.event.pull_request.base.sha }}"
+
+  smoke-test:
+    needs: [detect, validate]
+    if: needs.detect.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJSON(needs.detect.outputs.templates) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Smoke test for '${{ matrix.template }}'
+        uses: ./.github/actions/smoke-test
+        with:
+          template: "${{ matrix.template }}"
+
+  ci-templates-ok:
+    needs: [detect, validate, smoke-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check status of dependent jobs
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "One or more required jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "All required jobs passed (or were correctly skipped)."
