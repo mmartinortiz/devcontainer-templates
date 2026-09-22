@@ -3,13 +3,6 @@
 
 An opinionated and personal image for Python development
 
-## Options
-
-| Options Id | Description | Type | Default Value |
-|-----|-----|-----|-----|
-| pythonVersion | Python verison to be used: | string | 3.13 |
-| imageVariant | Debian version (use bullseye on local arm64/Apple Silicon): | string | bookworm |
-
 ## What it brings
 
 Features like:
