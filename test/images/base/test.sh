@@ -60,6 +60,13 @@ check "default user is vscode" bash -c "[ \"\$(run whoami)\" = 'vscode' ]"
 check "vscode's default shell is fish" bash -c "run bash -lc 'echo \$SHELL' | grep -q '/usr/bin/fish'"
 check "~/.local/bin is on PATH" bash -c "runFish 'echo \$PATH' | grep -q '/home/vscode/.local/bin'"
 
+# XDG dirs pre-created and owned by vscode (so Docker mounting e.g. ~/.local/share/opencode
+# doesn't leave root-owned parent dirs behind, which would break writes to ~/.local/state).
+for dir in .local .local/bin .local/share .local/state .cache .config; do
+    check "~/${dir} is owned by vscode" bash -c "[ \"\$(run stat -c %U /home/vscode/${dir})\" = 'vscode' ]"
+done
+check "vscode can write to ~/.local/state" run bash -c "touch ~/.local/state/opencode-test-file"
+
 # Fish completions
 check "uv fish completions exist" run test -s /usr/share/fish/vendor_completions.d/uv.fish
 check "prek fish completions exist" run test -s /usr/share/fish/vendor_completions.d/prek.fish

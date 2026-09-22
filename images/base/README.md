@@ -8,6 +8,7 @@ Opinionated Ubuntu-based Dev Container base image (`mcr.microsoft.com/devcontain
 - [Starship](https://starship.rs/) prompt (pinned GitHub release binary)
 - [prek](https://github.com/j178/prek) (installed via `uv tool install`), with fish completions
 - [opencode](https://opencode.ai) (pinned GitHub release binary)
+- `vscode`-owned `~/.local`, `~/.local/bin`, `~/.local/share`, `~/.local/state`, `~/.cache`, `~/.config` pre-created, so mounting a volume under e.g. `~/.local/share/opencode` doesn't leave root-owned parent dirs (Docker creates missing mount-point parents as `root:root`)
 
 ## Usage
 
