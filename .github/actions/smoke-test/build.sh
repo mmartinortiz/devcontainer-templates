@@ -11,10 +11,10 @@ cp -R "src/${TEMPLATE_ID}" "${SRC_DIR}"
 pushd "${SRC_DIR}"
 
 # Configure templates only if `devcontainer-template.json` contains the `options` property.
-OPTION_PROPERTY=( $(jq -r '.options' devcontainer-template.json) )
+OPTION_PROPERTY="$(jq -r '.options' devcontainer-template.json)"
 
 if [ "${OPTION_PROPERTY}" != "" ] && [ "${OPTION_PROPERTY}" != "null" ] ; then
-    OPTIONS=( $(jq -r '.options | keys[]' devcontainer-template.json) )
+    mapfile -t OPTIONS < <(jq -r '.options | keys[]' devcontainer-template.json)
 
     if [ "${OPTIONS[0]}" != "" ] && [ "${OPTIONS[0]}" != "null" ] ; then
         echo "(!) Configuring template options for '${TEMPLATE_ID}'"
@@ -38,9 +38,9 @@ TEST_DIR="test/${TEMPLATE_ID}"
 if [ -d "${TEST_DIR}" ] ; then
     echo "(*) Copying test folder"
     DEST_DIR="${SRC_DIR}/test-project"
-    mkdir -p ${DEST_DIR}
-    cp -Rp ${TEST_DIR}/* ${DEST_DIR}
-    cp -Rp test/test-utils/* ${DEST_DIR}
+    mkdir -p "${DEST_DIR}"
+    cp -Rp "${TEST_DIR}"/* "${DEST_DIR}"
+    cp -Rp test/test-utils/* "${DEST_DIR}"
 fi
 
 export DOCKER_BUILDKIT=1
@@ -49,4 +49,4 @@ npm install -g @devcontainers/cli
 
 echo "Building Dev Container"
 ID_LABEL="test-container=${TEMPLATE_ID}"
-devcontainer up --id-label ${ID_LABEL} --workspace-folder "${SRC_DIR}"
+devcontainer up --id-label "${ID_LABEL}" --workspace-folder "${SRC_DIR}"

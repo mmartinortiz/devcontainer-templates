@@ -43,30 +43,38 @@ jobs:
             fi
           done
 
-          echo "uv=${UV_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "starship=${STARSHIP_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "prek=${PREK_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "opencode=${OPENCODE_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "delta=${DELTA_VERSION}" >> "$GITHUB_OUTPUT"
+          {
+            echo "uv=${UV_VERSION}"
+            echo "starship=${STARSHIP_VERSION}"
+            echo "prek=${PREK_VERSION}"
+            echo "opencode=${OPENCODE_VERSION}"
+            echo "delta=${DELTA_VERSION}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update Dockerfile and README defaults
+        env:
+          UV_VERSION: ${{ steps.versions.outputs.uv }}
+          STARSHIP_VERSION: ${{ steps.versions.outputs.starship }}
+          PREK_VERSION: ${{ steps.versions.outputs.prek }}
+          OPENCODE_VERSION: ${{ steps.versions.outputs.opencode }}
+          DELTA_VERSION: ${{ steps.versions.outputs.delta }}
         run: |
           set -euo pipefail
 
           sed -i \
-            -e "s/^ARG UV_IMAGE_TAG=.*/ARG UV_IMAGE_TAG=${{ steps.versions.outputs.uv }}/" \
-            -e "s/^ARG STARSHIP_VERSION=.*/ARG STARSHIP_VERSION=${{ steps.versions.outputs.starship }}/" \
-            -e "s/^ARG PREK_VERSION=.*/ARG PREK_VERSION=${{ steps.versions.outputs.prek }}/" \
-            -e "s/^ARG OPENCODE_VERSION=.*/ARG OPENCODE_VERSION=${{ steps.versions.outputs.opencode }}/" \
-            -e "s/^ARG DELTA_VERSION=.*/ARG DELTA_VERSION=${{ steps.versions.outputs.delta }}/" \
+            -e "s/^ARG UV_IMAGE_TAG=.*/ARG UV_IMAGE_TAG=${UV_VERSION}/" \
+            -e "s/^ARG STARSHIP_VERSION=.*/ARG STARSHIP_VERSION=${STARSHIP_VERSION}/" \
+            -e "s/^ARG PREK_VERSION=.*/ARG PREK_VERSION=${PREK_VERSION}/" \
+            -e "s/^ARG OPENCODE_VERSION=.*/ARG OPENCODE_VERSION=${OPENCODE_VERSION}/" \
+            -e "s/^ARG DELTA_VERSION=.*/ARG DELTA_VERSION=${DELTA_VERSION}/" \
             images/base/Dockerfile
 
           sed -i \
-            -e "s/| \`UV_IMAGE_TAG\`[^|]*|[^|]*|/| \`UV_IMAGE_TAG\`    | \`${{ steps.versions.outputs.uv }}\` |/" \
-            -e "s/| \`STARSHIP_VERSION\`[^|]*|[^|]*|/| \`STARSHIP_VERSION\`| \`${{ steps.versions.outputs.starship }}\` |/" \
-            -e "s/| \`PREK_VERSION\`[^|]*|[^|]*|/| \`PREK_VERSION\`    | \`${{ steps.versions.outputs.prek }}\`  |/" \
-            -e "s/| \`OPENCODE_VERSION\`[^|]*|[^|]*|/| \`OPENCODE_VERSION\`| \`${{ steps.versions.outputs.opencode }}\` |/" \
-            -e "s/| \`DELTA_VERSION\`[^|]*|[^|]*|/| \`DELTA_VERSION\`   | \`${{ steps.versions.outputs.delta }}\` |/" \
+            -e "s/| \`UV_IMAGE_TAG\`[^|]*|[^|]*|/| \`UV_IMAGE_TAG\`    | \`${UV_VERSION}\` |/" \
+            -e "s/| \`STARSHIP_VERSION\`[^|]*|[^|]*|/| \`STARSHIP_VERSION\`| \`${STARSHIP_VERSION}\` |/" \
+            -e "s/| \`PREK_VERSION\`[^|]*|[^|]*|/| \`PREK_VERSION\`    | \`${PREK_VERSION}\`  |/" \
+            -e "s/| \`OPENCODE_VERSION\`[^|]*|[^|]*|/| \`OPENCODE_VERSION\`| \`${OPENCODE_VERSION}\` |/" \
+            -e "s/| \`DELTA_VERSION\`[^|]*|[^|]*|/| \`DELTA_VERSION\`   | \`${DELTA_VERSION}\` |/" \
             images/base/README.md
 
       - name: Check for changes

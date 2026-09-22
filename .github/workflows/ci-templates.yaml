@@ -25,6 +25,29 @@ jobs:
       - uses: ./.github/actions/detect-templates
         id: detect
 
+  lint-actions:
+    runs-on: ubuntu-latest
+    env:
+      ACTIONLINT_VERSION: "1.7.12"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install actionlint
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            -o /tmp/actionlint.tar.gz
+          tar -xzf /tmp/actionlint.tar.gz -C /usr/local/bin actionlint
+          rm /tmp/actionlint.tar.gz
+          chmod +x /usr/local/bin/actionlint
+
+      - name: Run actionlint
+        run: actionlint -color
+
+      - name: Run shellcheck on composite action scripts
+        run: shellcheck .github/actions/*/*.sh .github/scripts/validate-template.sh
+
   validate:
     needs: [detect]
     if: needs.detect.outputs.has_changed_templates == 'true'
@@ -62,7 +85,7 @@ jobs:
           template: "${{ matrix.template }}"
 
   ci-templates-ok:
-    needs: [detect, validate, smoke-test]
+    needs: [detect, validate, smoke-test, lint-actions]
     if: always()
     runs-on: ubuntu-latest
     steps:

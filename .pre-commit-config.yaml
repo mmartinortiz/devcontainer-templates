@@ -13,3 +13,9 @@ repos:
   rev: v4.1.0
   hooks:
   - id: commitizen
+
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.11.0.1
+  hooks:
+  - id: shellcheck
+    files: ^\.github/(actions/.*\.sh|scripts/validate-template\.sh)$
