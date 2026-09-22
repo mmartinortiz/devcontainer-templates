@@ -53,6 +53,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Compute calendar version tag
+        id: calver
+        run: echo "tag=$(date -u +'%Y.%m.%d')" >> "$GITHUB_OUTPUT"
+
       - name: Build (and push on main) base image
         uses: docker/build-push-action@v6
         with:
@@ -61,3 +65,4 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ghcr.io/mmartinortiz/devcontainer-images/base:latest
+            ghcr.io/mmartinortiz/devcontainer-images/base:${{ steps.calver.outputs.tag }}

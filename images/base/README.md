@@ -18,6 +18,8 @@ Reference the published image directly in your `devcontainer.json`:
 }
 ```
 
+Each merge to `main` also publishes a calendar-version tag (`YYYY.MM.DD`, UTC) alongside `latest`, e.g. `ghcr.io/mmartinortiz/devcontainer-images/base:2026.09.22`, so you can pin to a specific build if needed. Tags older than 3 months are pruned automatically by a monthly cleanup workflow (`latest` is never deleted).
+
 ## Build arguments
 
 | Arg               | Default  | Purpose                                                        |
