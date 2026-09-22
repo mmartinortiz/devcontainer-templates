@@ -7,8 +7,7 @@ An opinionated and personal image for Python development
 
 | Options Id | Description | Type | Default Value |
 |-----|-----|-----|-----|
-| pythonVersion | Python verison to be used: | string | 3.13 |
-| imageVariant | Debian version (use bullseye on local arm64/Apple Silicon): | string | bookworm |
+| pythonVersion | Python version to be used: | string | 3.13 |
 
 ## What it brings
 
