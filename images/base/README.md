@@ -8,6 +8,7 @@ Opinionated Ubuntu-based Dev Container base image (`mcr.microsoft.com/devcontain
 - [Starship](https://starship.rs/) prompt (pinned GitHub release binary)
 - [prek](https://github.com/j178/prek) (installed via `uv tool install`), with fish completions
 - [opencode](https://opencode.ai) (pinned GitHub release binary)
+- [delta](https://dandavison.github.io/delta/) (pinned GitHub release binary), wired into git system-wide as the pager/diff filter (`core.pager`, `interactive.diffFilter`, `delta.navigate`, `merge.conflictstyle=zdiff3` via `git config --system`), with fish completions
 - `vscode`-owned `~/.local`, `~/.local/bin`, `~/.local/share`, `~/.local/state`, `~/.cache`, `~/.config` pre-created, so mounting a volume under e.g. `~/.local/share/opencode` doesn't leave root-owned parent dirs (Docker creates missing mount-point parents as `root:root`)
 
 ## Usage
@@ -22,7 +23,7 @@ Reference the published image directly in your `devcontainer.json`:
 
 Each merge to `main` also publishes a calendar-version tag (`YYYY.MM.DD`, UTC) alongside `latest`, e.g. `ghcr.io/mmartinortiz/devcontainer-images/base:2026.09.22`, so you can pin to a specific build if needed. Tags older than 3 months are pruned automatically by a monthly cleanup workflow (`latest` is never deleted).
 
-The image also carries an `org.opencontainers.image.description` describing the exact `uv`/`starship`/`prek`/`opencode` versions it was built with. Since the published image is multi-arch, this is set in two places:
+The image also carries an `org.opencontainers.image.description` describing the exact `uv`/`starship`/`prek`/`opencode`/`delta` versions it was built with. Since the published image is multi-arch, this is set in two places:
 
 - As a `LABEL` on each platform's image config — inspect it after pulling:
   ```bash
@@ -41,6 +42,7 @@ The image also carries an `org.opencontainers.image.description` describing the 
 | `STARSHIP_VERSION`| `1.26.0` | Starship GitHub release version to install (without the `v` prefix) |
 | `PREK_VERSION`    | `0.5.3`  | `prek` version to install from PyPI; leave empty to install the latest |
 | `OPENCODE_VERSION`| `1.18.32` | opencode GitHub release version to install (without the `v` prefix) |
+| `DELTA_VERSION`   | `0.19.2` | delta GitHub release version to install (release tags have no `v` prefix) |
 
 Build locally, e.g. to bump Starship:
 

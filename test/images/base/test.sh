@@ -52,6 +52,7 @@ check "uvx is available" run uvx --version
 check "starship is available" run starship --version
 check "prek is available" run prek --version
 check "opencode is available" run opencode --version
+check "delta is available" run delta --version
 check "vim is available" run vim --version
 check "fish is available" run fish --version
 
@@ -70,6 +71,13 @@ check "vscode can write to ~/.local/state" run bash -c "touch ~/.local/state/ope
 # Fish completions
 check "uv fish completions exist" run test -s /usr/share/fish/vendor_completions.d/uv.fish
 check "prek fish completions exist" run test -s /usr/share/fish/vendor_completions.d/prek.fish
+check "delta fish completions exist" run test -s /usr/share/fish/vendor_completions.d/delta.fish
+
+# git wired to use delta
+check "git uses delta as pager" bash -c "[ \"\$(run git config --system core.pager)\" = 'delta' ]"
+check "git uses delta for interactive diff filter" bash -c "[ \"\$(run git config --system interactive.diffFilter)\" = 'delta --color-only' ]"
+check "git delta navigate mode is enabled" bash -c "[ \"\$(run git config --system delta.navigate)\" = 'true' ]"
+check "git merge conflict style is zdiff3" bash -c "[ \"\$(run git config --system merge.conflictstyle)\" = 'zdiff3' ]"
 
 # Vim defaults
 check "vim shows line numbers by default" bash -c "vimSetting 'set number?' | grep -qx '  number'"

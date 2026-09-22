@@ -66,7 +66,8 @@ jobs:
           STARSHIP=$(grep -m1 '^ARG STARSHIP_VERSION=' images/base/Dockerfile | cut -d= -f2)
           PREK=$(grep -m1 '^ARG PREK_VERSION=' images/base/Dockerfile | cut -d= -f2)
           OPENCODE=$(grep -m1 '^ARG OPENCODE_VERSION=' images/base/Dockerfile | cut -d= -f2)
-          echo "text=Ubuntu dev container base image — uv/uvx ${UV}, starship ${STARSHIP}, prek ${PREK}, opencode ${OPENCODE}" >> "$GITHUB_OUTPUT"
+          DELTA=$(grep -m1 '^ARG DELTA_VERSION=' images/base/Dockerfile | cut -d= -f2)
+          echo "text=Ubuntu dev container base image — uv/uvx ${UV}, starship ${STARSHIP}, prek ${PREK}, opencode ${OPENCODE}, delta ${DELTA}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push base image (multi-arch)
         uses: docker/build-push-action@v6
