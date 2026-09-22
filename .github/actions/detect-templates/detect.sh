@@ -2,13 +2,17 @@
 # Determines which template ids (directories under src/) are affected by the
 # changes between $1 (base ref/sha) and $2 (head ref/sha).
 #
-# A template id is considered affected if:
-#   - a file under src/<id>/** or test/<id>/** changed, or
-#   - a file under the shared test harness (.github/actions/smoke-test/** or
-#     test/test-utils/**) changed, in which case ALL templates are affected.
+# Prints two JSON arrays, one per line:
+#   1. "smoke_test" set  - templates whose devcontainer build should be tested.
+#                          Includes ALL templates if the shared test harness
+#                          (.github/actions/smoke-test/** or test/test-utils/**)
+#                          changed, since that affects every template's test run.
+#   2. "changed" set     - templates whose own files (src/<id>/** or
+#                          test/<id>/**) actually changed. This is the set that
+#                          must have a bumped `version`; a harness-only change
+#                          does not require any template to bump its version.
 #
-# Outputs a JSON array of template ids on stdout, e.g. ["python","base"].
-# Emits "[]" when nothing is affected.
+# Each line is a JSON array of template ids, e.g. ["python","base"], or "[]".
 
 set -euo pipefail
 
@@ -27,26 +31,28 @@ if grep -qE '^(\.github/actions/smoke-test/|test/test-utils/)' <<<"${CHANGED_FIL
     HARNESS_CHANGED=true
 fi
 
-declare -A AFFECTED=()
+declare -A DIRECTLY_CHANGED=()
+while IFS= read -r file; do
+    [ -z "${file}" ] && continue
+    for id in "${ALL_TEMPLATE_IDS[@]}"; do
+        if [[ "${file}" == "src/${id}/"* ]] || [[ "${file}" == "test/${id}/"* ]]; then
+            DIRECTLY_CHANGED["${id}"]=1
+        fi
+    done
+done <<<"${CHANGED_FILES}"
+
+to_json_array() {
+    if [ "$#" -eq 0 ]; then
+        echo "[]"
+    else
+        jq -nc --args '$ARGS.positional' "$@"
+    fi
+}
 
 if [ "${HARNESS_CHANGED}" = "true" ]; then
-    for id in "${ALL_TEMPLATE_IDS[@]}"; do
-        AFFECTED["${id}"]=1
-    done
+    to_json_array "${ALL_TEMPLATE_IDS[@]}"
 else
-    while IFS= read -r file; do
-        [ -z "${file}" ] && continue
-        for id in "${ALL_TEMPLATE_IDS[@]}"; do
-            if [[ "${file}" == "src/${id}/"* ]] || [[ "${file}" == "test/${id}/"* ]]; then
-                AFFECTED["${id}"]=1
-            fi
-        done
-    done <<<"${CHANGED_FILES}"
+    to_json_array "${!DIRECTLY_CHANGED[@]}"
 fi
 
-if [ "${#AFFECTED[@]}" -eq 0 ]; then
-    echo "[]"
-    exit 0
-fi
-
-jq -nc --args '$ARGS.positional' "${!AFFECTED[@]}"
+to_json_array "${!DIRECTLY_CHANGED[@]}"

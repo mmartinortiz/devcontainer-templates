@@ -4,12 +4,24 @@ description: >-
   changes in the current pull request, so downstream jobs can build a matrix
   over only the templates that changed.
 outputs:
-  templates:
-    description: JSON array of affected template ids, e.g. ["python","base"]. "[]" when none.
-    value: ${{ steps.detect.outputs.templates }}
-  has_changes:
-    description: "'true' if templates is a non-empty array, 'false' otherwise."
-    value: ${{ steps.detect.outputs.has_changes }}
+  smoke_test_templates:
+    description: >-
+      JSON array of template ids that should be smoke-tested, e.g.
+      ["python","base"]. Includes every template when the shared test
+      harness changed. "[]" when none.
+    value: ${{ steps.detect.outputs.smoke_test_templates }}
+  changed_templates:
+    description: >-
+      JSON array of template ids whose own files actually changed, e.g.
+      ["python"]. This is the set that must have a bumped `version`. "[]"
+      when none.
+    value: ${{ steps.detect.outputs.changed_templates }}
+  has_smoke_test_changes:
+    description: "'true' if smoke_test_templates is non-empty, 'false' otherwise."
+    value: ${{ steps.detect.outputs.has_smoke_test_changes }}
+  has_changed_templates:
+    description: "'true' if changed_templates is non-empty, 'false' otherwise."
+    value: ${{ steps.detect.outputs.has_changed_templates }}
 
 runs:
   using: composite
@@ -22,10 +34,21 @@ runs:
         HEAD_REF: ${{ github.event.pull_request.head.sha }}
       run: |
         set -euo pipefail
-        templates="$("${{ github.action_path }}/detect.sh" "${BASE_REF}" "${HEAD_REF}")"
-        echo "templates=${templates}" >> "$GITHUB_OUTPUT"
-        if [ "${templates}" = "[]" ]; then
-          echo "has_changes=false" >> "$GITHUB_OUTPUT"
+        mapfile -t lines < <("${{ github.action_path }}/detect.sh" "${BASE_REF}" "${HEAD_REF}")
+        smoke_test_templates="${lines[0]}"
+        changed_templates="${lines[1]}"
+
+        echo "smoke_test_templates=${smoke_test_templates}" >> "$GITHUB_OUTPUT"
+        echo "changed_templates=${changed_templates}" >> "$GITHUB_OUTPUT"
+
+        if [ "${smoke_test_templates}" = "[]" ]; then
+          echo "has_smoke_test_changes=false" >> "$GITHUB_OUTPUT"
         else
-          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "has_smoke_test_changes=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [ "${changed_templates}" = "[]" ]; then
+          echo "has_changed_templates=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_changed_templates=true" >> "$GITHUB_OUTPUT"
         fi
