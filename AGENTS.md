@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repo hosts personal [Dev Container Templates](https://containers.dev/implementors/templates). Only template today: `src/python`.
+Repo hosts personal [Dev Container Templates](https://containers.dev/implementors/templates) (`src/`) and Dev Container base images (`images/`). Only template today: `src/python`. Only image today: `images/base`.
 
 ## Structure
 
@@ -36,3 +36,11 @@ CI (`test-pr.yaml`) runs this per template, matrixed only over templates whose f
 ## Release flow (informational — not something to run locally)
 
 Merging to `main` with `src/**` changes triggers `release.yaml`: publishes templates, regenerates docs, and opens a PR updating template `README.md` files. Expect those READMEs to be periodically regenerated.
+
+## Base images (`images/<image-id>/`)
+
+Distinct from Templates above — these are plain Dockerfiles (no `devcontainer-template.json`/options substitution), consumed by other projects via `"image": "ghcr.io/..."` in their `devcontainer.json`.
+
+- `images/base/Dockerfile` — Ubuntu base (`mcr.microsoft.com/devcontainers/base:ubuntu`) + fish/vim (apt), uv/uvx (copied from `ghcr.io/astral-sh/uv`), Starship (pinned GitHub release binary), and `prek` (via `uv tool install`, relocated `UV_TOOL_DIR=/opt/uv-tools` so the non-root `vscode` user can execute it — `uv tool install` defaults to `~root/.local/share/uv/tools`, unreadable by other users).
+- Versions are pinned via build ARGs (`UV_IMAGE_TAG`, `STARSHIP_VERSION`, `PREK_VERSION`) with defaults baked in — bump these instead of relying on floating `latest` tags.
+- Fish completions for `uv`/`prek` are generated at build time into `/usr/share/fish/vendor_completions.d/` (note: `vendor_completions.d`, not `vendoer_...`) via `uv generate-shell-completion fish` and `COMPLETE=fish prek` (prek has no static completion subcommand — it uses clap's dynamic `COMPLETE=<shell>` env convention). `uvx` has no completion generator of its own.

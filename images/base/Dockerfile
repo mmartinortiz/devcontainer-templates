@@ -1,0 +1,58 @@
+# Pulls the static uv/uvx binaries from Astral's distroless image.
+ARG UV_IMAGE_TAG=latest
+FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG} AS uv
+
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+# Re-declare after FROM (build args are scoped per stage).
+ARG STARSHIP_VERSION=1.26.0
+ARG PREK_VERSION=""
+
+USER root
+
+# fish + vim via apt. curl/ca-certificates are needed to fetch the starship release tarball.
+RUN apt-get update \
+    && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends \
+        fish \
+        vim \
+        curl \
+        ca-certificates \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# uv / uvx, copied from the official distroless image.
+COPY --from=uv /uv /uvx /usr/local/bin/
+
+# starship: fetch the pinned GitHub release tarball for the current architecture.
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in \
+        amd64) SS_ARCH=x86_64-unknown-linux-musl ;; \
+        arm64) SS_ARCH=aarch64-unknown-linux-musl ;; \
+        *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL \
+        "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-${SS_ARCH}.tar.gz" \
+        -o /tmp/starship.tar.gz; \
+    tar -xzf /tmp/starship.tar.gz -C /usr/local/bin starship; \
+    rm /tmp/starship.tar.gz; \
+    chmod +x /usr/local/bin/starship
+
+# Fish completions for uv (uvx has no completion generator of its own; it proxies to `uv tool run`).
+RUN mkdir -p /usr/share/fish/vendor_completions.d \
+    && uv generate-shell-completion fish > /usr/share/fish/vendor_completions.d/uv.fish
+
+# prek, installed as a uv tool directly into /usr/local/bin.
+# UV_TOOL_DIR is moved out of /root so the non-root vscode user can still exec the tool venv
+# that /usr/local/bin/prek symlinks into.
+ENV UV_TOOL_DIR=/opt/uv-tools
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
+RUN uv tool install ${PREK_VERSION:+--version "${PREK_VERSION}"} prek \
+    && chmod -R o+rX /opt/uv-tools \
+    && COMPLETE=fish prek > /usr/share/fish/vendor_completions.d/prek.fish
+
+# Default user setup: fish as default shell, ~/.local/bin on PATH.
+RUN chsh --shell "$(command -v fish)" vscode
+ENV PATH="/home/vscode/.local/bin:${PATH}"
+
+USER vscode
