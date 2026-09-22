@@ -4,7 +4,7 @@ source test-utils.sh
 
 # Template specific tests
 check "distro" lsb_release -c
-check "default shell is fish" [ "$(getent passwd "$(whoami)" | cut -d: -f7)" = "$(command -v fish)" ]
+check "default shell is bash" [ "$(getent passwd "$(whoami)" | cut -d: -f7)" = "$(command -v bash)" ]
 check "uv present" command -v uv
 check "uvx present" command -v uvx
 check "starship present" command -v starship
