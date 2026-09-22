@@ -1,12 +1,12 @@
 # Pulls the static uv/uvx binaries from Astral's distroless image.
-ARG UV_IMAGE_TAG=latest
+ARG UV_IMAGE_TAG=0.12.17
 FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG} AS uv
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 # Re-declare after FROM (build args are scoped per stage).
 ARG STARSHIP_VERSION=1.26.0
-ARG PREK_VERSION=""
+ARG PREK_VERSION=0.5.3
 
 USER root
 
@@ -47,7 +47,7 @@ RUN mkdir -p /usr/share/fish/vendor_completions.d \
 # that /usr/local/bin/prek symlinks into.
 ENV UV_TOOL_DIR=/opt/uv-tools
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
-RUN uv tool install ${PREK_VERSION:+--version "${PREK_VERSION}"} prek \
+RUN uv tool install "prek${PREK_VERSION:+==${PREK_VERSION}}" \
     && chmod -R o+rX /opt/uv-tools \
     && COMPLETE=fish prek > /usr/share/fish/vendor_completions.d/prek.fish
 

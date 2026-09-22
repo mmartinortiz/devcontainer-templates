@@ -22,9 +22,9 @@ Reference the published image directly in your `devcontainer.json`:
 
 | Arg               | Default  | Purpose                                                        |
 | ----------------- | -------- | --------------------------------------------------------------- |
-| `UV_IMAGE_TAG`    | `latest` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
+| `UV_IMAGE_TAG`    | `0.12.17` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
 | `STARSHIP_VERSION`| `1.26.0` | Starship GitHub release version to install (without the `v` prefix) |
-| `PREK_VERSION`    | *(unset)* | Pin a specific `prek` version; empty installs the latest from PyPI |
+| `PREK_VERSION`    | `0.5.3`  | `prek` version to install from PyPI; leave empty to install the latest |
 
 Build locally, e.g. to bump Starship:
 
