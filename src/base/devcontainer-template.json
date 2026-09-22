@@ -1,0 +1,14 @@
+{
+    "id": "base",
+    "version": "1.0.0",
+    "name": "Base",
+    "description": "A general-purpose devcontainer template using this repo's own base image (fish, vim, uv, starship, prek, opencode)",
+    "documentationURL": "https://github.com/mmartinortiz/devcontainer-templates/tree/main/src/base",
+    "licenseURL": "https://github.com/mmartinortiz/devcontainer-templates/blob/main/LICENSE",
+    "platforms": [
+        "Any"
+    ],
+    "optionalPaths": [
+        ".pre-commit-config.yaml"
+    ]
+}
