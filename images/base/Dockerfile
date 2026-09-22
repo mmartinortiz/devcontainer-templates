@@ -11,11 +11,12 @@ ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.3
 ARG OPENCODE_VERSION=1.18.32
+ARG DELTA_VERSION=0.19.2
 
 # OCI labels: bake the exact tool versions into the image so they're inspectable without
 # pulling and running each binary's --version (`docker inspect <image>` or GHCR's package page).
 LABEL org.opencontainers.image.title="devcontainer-base" \
-      org.opencontainers.image.description="Ubuntu dev container base image — uv/uvx ${UV_IMAGE_TAG}, starship ${STARSHIP_VERSION}, prek ${PREK_VERSION}, opencode ${OPENCODE_VERSION}" \
+      org.opencontainers.image.description="Ubuntu dev container base image — uv/uvx ${UV_IMAGE_TAG}, starship ${STARSHIP_VERSION}, prek ${PREK_VERSION}, opencode ${OPENCODE_VERSION}, delta ${DELTA_VERSION}" \
       org.opencontainers.image.source="https://github.com/mmartinortiz/devcontainer-templates"
 
 USER root
@@ -68,9 +69,40 @@ RUN set -eux; \
     rm /tmp/opencode.tar.gz; \
     chmod +x /usr/local/bin/opencode
 
-# Fish completions for uv (uvx has no completion generator of its own; it proxies to `uv tool run`).
+# delta: fetch the pinned GitHub release tarball for the current architecture.
+# Release tags have no "v" prefix (unlike starship/opencode above). Only gnu (not musl)
+# linux targets are published for aarch64, so use gnu for both architectures here.
+RUN set -eux; \
+    case "$(dpkg --print-architecture)" in \
+        amd64) DELTA_ARCH=x86_64-unknown-linux-gnu ;; \
+        arm64) DELTA_ARCH=aarch64-unknown-linux-gnu ;; \
+        *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL \
+        "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-${DELTA_ARCH}.tar.gz" \
+        -o /tmp/delta.tar.gz; \
+    tar -xzf /tmp/delta.tar.gz -C /usr/local/bin --strip-components=1 "delta-${DELTA_VERSION}-${DELTA_ARCH}/delta"; \
+    rm /tmp/delta.tar.gz; \
+    chmod +x /usr/local/bin/delta
+
+# Wire delta into git system-wide as the pager/diff filter. Uses `git config --system`
+# (appends to /etc/gitconfig) rather than COPYing a full gitconfig, so it doesn't clobber
+# any entries the base image already set there; a user's own ~/.gitconfig still overrides this.
+RUN git config --system core.pager delta \
+    && git config --system interactive.diffFilter "delta --color-only" \
+    && git config --system delta.navigate true \
+    && git config --system merge.conflictstyle zdiff3
+    # merge.conflictstyle=zdiff3 is unrelated to delta itself (it's a native git merge-marker
+    # format, not something delta renders) but is bundled here since delta's docs recommend
+    # pairing it: zdiff3 conflict markers include the common ancestor hunk, which delta can
+    # then diff-highlight for easier conflict resolution. This changes conflict marker output
+    # for *all* merges/rebases in the container, regardless of whether delta is used as pager.
+
+# Fish completions for uv (uvx has no completion generator of its own; it proxies to `uv tool run`)
+# and delta.
 RUN mkdir -p /usr/share/fish/vendor_completions.d \
-    && uv generate-shell-completion fish > /usr/share/fish/vendor_completions.d/uv.fish
+    && uv generate-shell-completion fish > /usr/share/fish/vendor_completions.d/uv.fish \
+    && delta --generate-completion fish > /usr/share/fish/vendor_completions.d/delta.fish
 
 # prek, installed as a uv tool directly into /usr/local/bin.
 # UV_TOOL_DIR is moved out of /root so the non-root vscode user can still exec the tool venv
