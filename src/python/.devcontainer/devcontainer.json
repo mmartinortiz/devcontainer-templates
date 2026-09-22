@@ -1,6 +1,12 @@
 {
 	"name": "Python",
-	"image": "mcr.microsoft.com/devcontainers/python:1-${templateOption:pythonVersion}-${templateOption:imageVariant}",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"PYTHON_VERSION": "${templateOption:pythonVersion}",
+			"IMAGE_VARIANT": "${templateOption:imageVariant}"
+		}
+	},
 	"features": {
 		// Uncomment to include the pre-commit feature
 		// "ghcr.io/devcontainers-extra/features/pre-commit:2": {},
