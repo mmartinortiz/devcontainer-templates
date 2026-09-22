@@ -1,0 +1,26 @@
+name: "Cleanup Registry"
+
+on:
+  schedule:
+    - cron: "0 4 1 * *" # 1st of every month at 04:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Log what would be deleted without deleting anything"
+        type: boolean
+        default: true
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Prune base image versions older than 3 months
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: devcontainer-images/base
+          exclude-tags: latest
+          older-than: 3 months
+          delete-untagged: true
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
