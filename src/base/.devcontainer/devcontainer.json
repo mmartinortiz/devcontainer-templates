@@ -10,7 +10,8 @@
 		"create permanent fish history": "mkdir -p ~/.devcontainer/${devcontainerId} && touch ~/.devcontainer/${devcontainerId}/fish_history"
 	},
 	"onCreateCommand": {
-		"prek": "if [ -e .pre-commit-config.yaml ] && [ -d .git ]; then prek install --install-hooks; fi"
+		"prek": "if [ -e .pre-commit-config.yaml ] && [ -d .git ]; then prek install --install-hooks; fi",
+		"shell setup": ".devcontainer/setup.sh"
 	},
 	"containerEnv": {
 		"UV_CACHE_DIR": "/home/vscode/.uv_cache"
