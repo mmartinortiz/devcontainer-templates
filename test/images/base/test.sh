@@ -68,6 +68,13 @@ for dir in .local .local/bin .local/share .local/state .cache .config; do
 done
 check "vscode can write to ~/.local/state" run bash -c "touch ~/.local/state/opencode-test-file"
 
+# /opt/uv-tools (UV_TOOL_DIR) must be owned by vscode, not just other-readable: prek rewrites
+# files inside its own venv dir at runtime, and consumer onCreateCommand steps commonly
+# `uv tool install` further tools (e.g. rust-just) into this same dir as vscode.
+check "/opt/uv-tools is owned by vscode" bash -c "[ \"\$(run stat -c %U /opt/uv-tools)\" = 'vscode' ]"
+check "vscode can write new files into /opt/uv-tools" run bash -c "touch /opt/uv-tools/write-test"
+check "vscode can uv tool install into /opt/uv-tools" run bash -c "UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/tmp/bin uv tool install rust-just"
+
 # Fish completions
 check "uv fish completions exist" run test -s /usr/share/fish/vendor_completions.d/uv.fish
 check "prek fish completions exist" run test -s /usr/share/fish/vendor_completions.d/prek.fish

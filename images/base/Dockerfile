@@ -106,11 +106,15 @@ RUN mkdir -p /usr/share/fish/vendor_completions.d \
 
 # prek, installed as a uv tool directly into /usr/local/bin.
 # UV_TOOL_DIR is moved out of /root so the non-root vscode user can still exec the tool venv
-# that /usr/local/bin/prek symlinks into.
+# that /usr/local/bin/prek symlinks into. Ownership (not just o+rX) is handed to vscode:
+# vscode is the only user that ever runs uv/prek at runtime, and it needs to write here too —
+# prek rewrites files inside its own venv dir on invocation, and consumer devcontainer.json
+# onCreateCommand steps commonly `uv tool install` further tools (e.g. rust-just) into this
+# same UV_TOOL_DIR. Read-only-for-other permissions broke both of those.
 ENV UV_TOOL_DIR=/opt/uv-tools
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
 RUN uv tool install "prek${PREK_VERSION:+==${PREK_VERSION}}" \
-  && chmod -R o+rX /opt/uv-tools \
+  && chown -R vscode:vscode /opt/uv-tools \
   && COMPLETE=fish prek > /usr/share/fish/vendor_completions.d/prek.fish
 
 # Pre-create the XDG dirs owned by vscode. Docker creates missing parent directories of
