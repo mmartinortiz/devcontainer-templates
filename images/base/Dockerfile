@@ -104,15 +104,20 @@ RUN mkdir -p /usr/share/fish/vendor_completions.d \
   && uv generate-shell-completion fish > /usr/share/fish/vendor_completions.d/uv.fish \
   && delta --generate-completion fish > /usr/share/fish/vendor_completions.d/delta.fish
 
-# prek, installed as a uv tool directly into /usr/local/bin.
-# UV_TOOL_DIR is moved out of /root so the non-root vscode user can still exec the tool venv
-# that /usr/local/bin/prek symlinks into. Ownership (not just o+rX) is handed to vscode:
-# vscode is the only user that ever runs uv/prek at runtime, and it needs to write here too —
-# prek rewrites files inside its own venv dir on invocation, and consumer devcontainer.json
-# onCreateCommand steps commonly `uv tool install` further tools (e.g. rust-just) into this
-# same UV_TOOL_DIR. Read-only-for-other permissions broke both of those.
+# prek, installed as a uv tool. UV_TOOL_DIR is moved out of /root so the non-root vscode user
+# can still exec the tool venv, and both it and UV_TOOL_BIN_DIR point at vscode-owned
+# locations (not /usr/local/bin, a root-owned system dir) since vscode is the only user that
+# ever runs uv/prek at runtime and needs to write to both: prek rewrites files inside its own
+# venv dir on invocation, and consumer devcontainer.json onCreateCommand steps commonly
+# `uv tool install` further tools (e.g. rust-just) here as vscode. UV_TOOL_BIN_DIR is
+# ~/.local/bin (already on PATH below) rather than /opt/uv-tools itself so installed tools'
+# symlinks land somewhere every shell already looks, same as a plain `uv tool install` a user
+# would run themselves.
 ENV UV_TOOL_DIR=/opt/uv-tools
-ENV UV_TOOL_BIN_DIR=/usr/local/bin
+ENV UV_TOOL_BIN_DIR=/home/vscode/.local/bin
+# ~/.local/bin on PATH — needed now already so `prek` (just installed there) is runnable
+# below to generate its own completions, not just later at container runtime.
+ENV PATH="/home/vscode/.local/bin:${PATH}"
 RUN uv tool install "prek${PREK_VERSION:+==${PREK_VERSION}}" \
   && chown -R vscode:vscode /opt/uv-tools \
   && COMPLETE=fish prek > /usr/share/fish/vendor_completions.d/prek.fish
@@ -128,8 +133,5 @@ RUN install -d -o vscode -g vscode \
   /home/vscode/.local/state \
   /home/vscode/.cache \
   /home/vscode/.config
-
-#  ~/.local/bin on PATH.
-ENV PATH="/home/vscode/.local/bin:${PATH}"
 
 USER vscode

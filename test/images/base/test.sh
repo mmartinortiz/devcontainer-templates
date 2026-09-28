@@ -70,10 +70,13 @@ check "vscode can write to ~/.local/state" run bash -c "touch ~/.local/state/ope
 
 # /opt/uv-tools (UV_TOOL_DIR) must be owned by vscode, not just other-readable: prek rewrites
 # files inside its own venv dir at runtime, and consumer onCreateCommand steps commonly
-# `uv tool install` further tools (e.g. rust-just) into this same dir as vscode.
+# `uv tool install` further tools (e.g. rust-just) into this same dir as vscode. No env
+# overrides here — this must work against the image's real UV_TOOL_DIR/UV_TOOL_BIN_DIR
+# defaults, since a prior version of this check overrode UV_TOOL_BIN_DIR and missed a real
+# bug (the default pointed at root-owned /usr/local/bin).
 check "/opt/uv-tools is owned by vscode" bash -c "[ \"\$(run stat -c %U /opt/uv-tools)\" = 'vscode' ]"
 check "vscode can write new files into /opt/uv-tools" run bash -c "touch /opt/uv-tools/write-test"
-check "vscode can uv tool install into /opt/uv-tools" run bash -c "UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/tmp/bin uv tool install rust-just"
+check "vscode can uv tool install a new tool with default env" run bash -c "uv tool install rust-just && just --version"
 
 # Fish completions
 check "uv fish completions exist" run test -s /usr/share/fish/vendor_completions.d/uv.fish
