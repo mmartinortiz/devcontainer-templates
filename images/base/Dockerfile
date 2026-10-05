@@ -1,5 +1,5 @@
 # Pulls the static uv/uvx binaries from Astral's distroless image.
-ARG UV_IMAGE_TAG=0.12.17
+ARG UV_IMAGE_TAG=0.12.23
 FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG} AS uv
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
@@ -9,9 +9,9 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 # same value used to select the uv builder stage's FROM tag above.
 ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
-ARG PREK_VERSION=0.5.3
-ARG OPENCODE_VERSION=1.18.32
-ARG DELTA_VERSION=0.19.2
+ARG PREK_VERSION=0.5.5
+ARG OPENCODE_VERSION=1.18.34
+ARG DELTA_VERSION=0.20.1
 
 # OCI labels: bake the exact tool versions into the image so they're inspectable without
 # pulling and running each binary's --version (`docker inspect <image>` or GHCR's package page).
