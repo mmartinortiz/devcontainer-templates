@@ -11,7 +11,16 @@ ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.5
 ARG OPENCODE_VERSION=2.0.24
+# sha512 of the per-arch npm tarballs, from `dist.integrity` of
+# `@opencode/cli-linux-{x64,arm64}` (SRI format, base64). Verified at build time.
+ARG OPENCODE_SHA512_X64=WDBunGoImJOYjwUvDDfl0GJiKR/WbATnSXW1QTrK+VDp+oOUNLXo84QTUCBVUqvb8VsseWhs3uyWCD9o9c5JDA==
+ARG OPENCODE_SHA512_ARM64=n+C1XkoIB0NaHK9CQo4gGIc9FRGDhrMdCXO8heEOvUgKsH/0ROxCr3CxUuJaKolL/5+c5u3CoiXsckL+fa52ag==
 ARG DELTA_VERSION=0.20.1
+# sha256 of the per-arch release tarballs, from the GitHub release's asset `digest`
+# field. Verified at build time. Starship needs no pin: upstream publishes a `.sha256`
+# sidecar next to each asset, fetched and checked at build time instead.
+ARG DELTA_SHA256_AMD64=50f08c879f84c81ceb220e476491a7f492d2c9c671e79918cc44badf961a6240
+ARG DELTA_SHA256_ARM64=da7f4338f593572ff426ae153e0870e2fdc72729416eff551b40cdeb67940db8
 
 # OCI labels: bake the exact tool versions into the image so they're inspectable without
 # pulling and running each binary's --version (`docker inspect <image>` or GHCR's package page).
@@ -50,6 +59,9 @@ RUN set -eux; \
   curl -fsSL \
   "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-${SS_ARCH}.tar.gz" \
   -o /tmp/starship.tar.gz; \
+  # Verify against upstream's published .sha256 sidecar (bare hash, no filename).
+  SS_SHA256="$(curl -fsSL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-${SS_ARCH}.tar.gz.sha256")"; \
+  echo "${SS_SHA256}  /tmp/starship.tar.gz" | sha256sum -c -; \
   tar -xzf /tmp/starship.tar.gz -C /usr/local/bin starship; \
   rm /tmp/starship.tar.gz; \
   chmod +x /usr/local/bin/starship
@@ -62,13 +74,15 @@ RUN set -eux; \
 # this Ubuntu base).
 RUN set -eux; \
   case "$(dpkg --print-architecture)" in \
-  amd64) OC_ARCH=x64 ;; \
-  arm64) OC_ARCH=arm64 ;; \
+  amd64) OC_ARCH=x64; OC_SHA512="${OPENCODE_SHA512_X64}" ;; \
+  arm64) OC_ARCH=arm64; OC_SHA512="${OPENCODE_SHA512_ARM64}" ;; \
   *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
   esac; \
   curl -fsSL \
   "https://registry.npmjs.org/@opencode/cli-linux-${OC_ARCH}/-/cli-linux-${OC_ARCH}-${OPENCODE_VERSION}.tgz" \
   -o /tmp/opencode.tgz; \
+  # Verify against the pinned sha512 (npm SRI string, base64 — decode to hex for sha512sum).
+  echo "$(echo "${OC_SHA512}" | base64 -d | od -An -tx1 -v | tr -d ' \n')  /tmp/opencode.tgz" | sha512sum -c -; \
   tar -xzf /tmp/opencode.tgz -C /usr/local/bin --strip-components=2 package/bin/opencode; \
   rm /tmp/opencode.tgz; \
   chmod +x /usr/local/bin/opencode
@@ -78,13 +92,15 @@ RUN set -eux; \
 # linux targets are published for aarch64, so use gnu for both architectures here.
 RUN set -eux; \
   case "$(dpkg --print-architecture)" in \
-  amd64) DELTA_ARCH=x86_64-unknown-linux-gnu ;; \
-  arm64) DELTA_ARCH=aarch64-unknown-linux-gnu ;; \
+  amd64) DELTA_ARCH=x86_64-unknown-linux-gnu; DELTA_SHA256="${DELTA_SHA256_AMD64}" ;; \
+  arm64) DELTA_ARCH=aarch64-unknown-linux-gnu; DELTA_SHA256="${DELTA_SHA256_ARM64}" ;; \
   *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
   esac; \
   curl -fsSL \
   "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-${DELTA_ARCH}.tar.gz" \
   -o /tmp/delta.tar.gz; \
+  # Verify against the pinned sha256 (GitHub release asset digest).
+  echo "${DELTA_SHA256}  /tmp/delta.tar.gz" | sha256sum -c -; \
   tar -xzf /tmp/delta.tar.gz -C /usr/local/bin --strip-components=1 "delta-${DELTA_VERSION}-${DELTA_ARCH}/delta"; \
   rm /tmp/delta.tar.gz; \
   chmod +x /usr/local/bin/delta
