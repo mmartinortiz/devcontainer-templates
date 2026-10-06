@@ -38,7 +38,21 @@ jobs:
           OPENCODE_VERSION="$(curl -fsSL https://opencode.ai/update/api/latest/cli/npm | jq -r '.version')"
           DELTA_VERSION="$(api https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')"
 
-          for name in UV_VERSION STARSHIP_VERSION PREK_VERSION OPENCODE_VERSION DELTA_VERSION; do
+          # Integrity hashes for the tarballs pinned in images/base/Dockerfile.
+          # opencode: npm `dist.integrity` is an SRI string ("sha512-<base64>"); strip the prefix.
+          OPENCODE_SHA512_X64="$(curl -fsSL "https://registry.npmjs.org/@opencode/cli-linux-x64/${OPENCODE_VERSION}" | jq -r '.dist.integrity' | sed 's/^sha512-//' | head -n1)"
+          OPENCODE_SHA512_ARM64="$(curl -fsSL "https://registry.npmjs.org/@opencode/cli-linux-arm64/${OPENCODE_VERSION}" | jq -r '.dist.integrity' | sed 's/^sha512-//' | head -n1)"
+          # delta: GitHub release asset `digest` is "sha256:<hex>"; strip the prefix.
+          # endswith(".tar.gz") + head -n1 guard against upstream adding extra assets
+          # (e.g. .sha256 sidecars) matching the same arch substring — a multi-line value
+          # would silently break the sed below.
+          DELTA_RELEASE="$(api "https://api.github.com/repos/dandavison/delta/releases/tags/${DELTA_VERSION}")"
+          DELTA_SHA256_AMD64="$(echo "${DELTA_RELEASE}" | jq -r '.assets[] | select((.name | contains("x86_64-unknown-linux-gnu")) and (.name | endswith(".tar.gz"))) | .digest' | sed 's/^sha256://' | head -n1)"
+          DELTA_SHA256_ARM64="$(echo "${DELTA_RELEASE}" | jq -r '.assets[] | select((.name | contains("aarch64-unknown-linux-gnu")) and (.name | endswith(".tar.gz"))) | .digest' | sed 's/^sha256://' | head -n1)"
+          # starship needs no pinned hash: the Dockerfile fetches upstream's `.sha256`
+          # sidecar at build time and verifies against it.
+
+          for name in UV_VERSION STARSHIP_VERSION PREK_VERSION OPENCODE_VERSION OPENCODE_SHA512_X64 OPENCODE_SHA512_ARM64 DELTA_VERSION DELTA_SHA256_AMD64 DELTA_SHA256_ARM64; do
             value="${!name}"
             if [ -z "${value}" ] || [ "${value}" = "null" ]; then
               echo "Failed to resolve ${name}" >&2
@@ -51,7 +65,11 @@ jobs:
             echo "starship=${STARSHIP_VERSION}"
             echo "prek=${PREK_VERSION}"
             echo "opencode=${OPENCODE_VERSION}"
+            echo "opencode_sha512_x64=${OPENCODE_SHA512_X64}"
+            echo "opencode_sha512_arm64=${OPENCODE_SHA512_ARM64}"
             echo "delta=${DELTA_VERSION}"
+            echo "delta_sha256_amd64=${DELTA_SHA256_AMD64}"
+            echo "delta_sha256_arm64=${DELTA_SHA256_ARM64}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Update Dockerfile and README defaults
@@ -60,7 +78,11 @@ jobs:
           STARSHIP_VERSION: ${{ steps.versions.outputs.starship }}
           PREK_VERSION: ${{ steps.versions.outputs.prek }}
           OPENCODE_VERSION: ${{ steps.versions.outputs.opencode }}
+          OPENCODE_SHA512_X64: ${{ steps.versions.outputs.opencode_sha512_x64 }}
+          OPENCODE_SHA512_ARM64: ${{ steps.versions.outputs.opencode_sha512_arm64 }}
           DELTA_VERSION: ${{ steps.versions.outputs.delta }}
+          DELTA_SHA256_AMD64: ${{ steps.versions.outputs.delta_sha256_amd64 }}
+          DELTA_SHA256_ARM64: ${{ steps.versions.outputs.delta_sha256_arm64 }}
         run: |
           set -euo pipefail
 
@@ -69,7 +91,11 @@ jobs:
             -e "s/^ARG STARSHIP_VERSION=.*/ARG STARSHIP_VERSION=${STARSHIP_VERSION}/" \
             -e "s/^ARG PREK_VERSION=.*/ARG PREK_VERSION=${PREK_VERSION}/" \
             -e "s/^ARG OPENCODE_VERSION=.*/ARG OPENCODE_VERSION=${OPENCODE_VERSION}/" \
+            -e "s|^ARG OPENCODE_SHA512_X64=.*|ARG OPENCODE_SHA512_X64=${OPENCODE_SHA512_X64}|" \
+            -e "s|^ARG OPENCODE_SHA512_ARM64=.*|ARG OPENCODE_SHA512_ARM64=${OPENCODE_SHA512_ARM64}|" \
             -e "s/^ARG DELTA_VERSION=.*/ARG DELTA_VERSION=${DELTA_VERSION}/" \
+            -e "s/^ARG DELTA_SHA256_AMD64=.*/ARG DELTA_SHA256_AMD64=${DELTA_SHA256_AMD64}/" \
+            -e "s/^ARG DELTA_SHA256_ARM64=.*/ARG DELTA_SHA256_ARM64=${DELTA_SHA256_ARM64}/" \
             images/base/Dockerfile
 
           sed -i \
