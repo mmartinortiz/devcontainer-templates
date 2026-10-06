@@ -25,18 +25,45 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Age gate: only adopt releases published at least this many days ago,
+          # so brand-new (possibly yanked/broken) upstream releases aren't picked up.
+          MIN_AGE_DAYS=7
+          CUTOFF="$(date -u -d "${MIN_AGE_DAYS} days ago" +%Y-%m-%dT%H:%M:%SZ)"
+
           api() {
             curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$1"
           }
 
-          UV_VERSION="$(api https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r '.tag_name')"
-          STARSHIP_VERSION="$(api https://api.github.com/repos/starship/starship/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
-          PREK_VERSION="$(api https://api.github.com/repos/j178/prek/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
+          # Newest non-draft, non-prerelease GitHub release published on/before CUTOFF.
+          # The API returns releases newest-first, so .[0] is the newest eligible one.
+          # ISO-8601 UTC timestamps compare correctly as plain strings.
+          latest_gh_tag() {
+            api "https://api.github.com/repos/$1/releases?per_page=30" \
+              | jq -r --arg c "${CUTOFF}" \
+                '[.[] | select(.draft == false and .prerelease == false and .published_at <= $c)] | .[0].tag_name // empty'
+          }
+
+          UV_VERSION="$(latest_gh_tag astral-sh/uv)"
+          STARSHIP_VERSION="$(latest_gh_tag starship/starship | sed 's/^v//')"
+          PREK_VERSION="$(latest_gh_tag j178/prek | sed 's/^v//')"
           # opencode V2 is published as Git tags only — the GitHub `/releases/latest`
-          # endpoint keeps returning the newest V1 release object. The authoritative
-          # "latest V2" channel is opencode's own update API (npm distribution).
-          OPENCODE_VERSION="$(curl -fsSL https://opencode.ai/update/api/latest/cli/npm | jq -r '.version')"
-          DELTA_VERSION="$(api https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')"
+          # endpoint keeps returning the newest V1 release object. Resolve the newest
+          # npm version old enough instead: the registry packument's `time` map holds
+          # per-version publish timestamps.
+          OPENCODE_DOC="$(curl -fsSL https://registry.npmjs.org/@opencode/cli-linux-x64)"
+          OPENCODE_VERSION="$(echo "${OPENCODE_DOC}" | jq -r --arg c "${CUTOFF}" '
+            [.time | to_entries[]
+              | select(.key | test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))
+              | select(.value <= $c) | .key]
+            | sort_by(split(".") | map(tonumber)) | .[-1] // empty')"
+          # Both arch packages must publish the same version; verify arm64 also has it
+          # and that it is old enough there too (publishes may not be simultaneous).
+          OPENCODE_ARM64_TIME="$(curl -fsSL https://registry.npmjs.org/@opencode/cli-linux-arm64 | jq -r --arg v "${OPENCODE_VERSION}" '.time[$v] // empty')"
+          if [ -z "${OPENCODE_ARM64_TIME}" ] || [ "${OPENCODE_ARM64_TIME}" \> "${CUTOFF}" ]; then
+            echo "opencode ${OPENCODE_VERSION} missing or too new on cli-linux-arm64 (published: ${OPENCODE_ARM64_TIME:-none})" >&2
+            exit 1
+          fi
+          DELTA_VERSION="$(latest_gh_tag dandavison/delta)"
 
           # Integrity hashes for the tarballs pinned in images/base/Dockerfile.
           # opencode: npm `dist.integrity` is an SRI string ("sha512-<base64>"); strip the prefix.
@@ -138,10 +165,11 @@ jobs:
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(images): bump base image dependencies to latest"
-          title: "chore(images): bump base image dependencies to latest"
+          commit-message: "chore(images): bump base image dependencies"
+          title: "chore(images): bump base image dependencies"
           body: |
-            Automated weekly dependency bump for `images/base`.
+            Automated weekly dependency bump for `images/base`. Only releases
+            published at least 7 days ago are considered (age gate).
 
             | Dependency | Version |
             | ---------- | ------- |
