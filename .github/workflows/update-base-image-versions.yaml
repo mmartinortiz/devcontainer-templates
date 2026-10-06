@@ -32,7 +32,10 @@ jobs:
           UV_VERSION="$(api https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r '.tag_name')"
           STARSHIP_VERSION="$(api https://api.github.com/repos/starship/starship/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
           PREK_VERSION="$(api https://api.github.com/repos/j178/prek/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
-          OPENCODE_VERSION="$(api https://api.github.com/repos/anomalyco/opencode/releases/latest | jq -r '.tag_name' | sed 's/^v//')"
+          # opencode V2 is published as Git tags only — the GitHub `/releases/latest`
+          # endpoint keeps returning the newest V1 release object. The authoritative
+          # "latest V2" channel is opencode's own update API (npm distribution).
+          OPENCODE_VERSION="$(curl -fsSL https://opencode.ai/update/api/latest/cli/npm | jq -r '.version')"
           DELTA_VERSION="$(api https://api.github.com/repos/dandavison/delta/releases/latest | jq -r '.tag_name')"
 
           for name in UV_VERSION STARSHIP_VERSION PREK_VERSION OPENCODE_VERSION DELTA_VERSION; do

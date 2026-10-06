@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.5
-ARG OPENCODE_VERSION=1.18.34
+ARG OPENCODE_VERSION=2.0.24
 ARG DELTA_VERSION=0.20.1
 
 # OCI labels: bake the exact tool versions into the image so they're inspectable without
@@ -54,23 +54,27 @@ RUN set -eux; \
   rm /tmp/starship.tar.gz; \
   chmod +x /usr/local/bin/starship
 
-# opencode: fetch the pinned GitHub release tarball for the current architecture.
-# Assets are glibc builds (matching this Ubuntu base); musl/baseline variants exist but aren't needed here.
+# opencode: fetch the pinned npm tarball for the current architecture.
+# V2 is published as Git tags only (no GitHub Releases), so binaries are pulled from the
+# per-platform npm packages `@opencode/cli-linux-{x64,arm64}` instead of a release asset.
+# "Latest V2" is resolved via https://opencode.ai/update/api/latest/cli/npm — see
+# .github/workflows/update-base-image-versions.yaml. Assets are glibc builds (matching
+# this Ubuntu base).
 RUN set -eux; \
   case "$(dpkg --print-architecture)" in \
-  amd64) OC_ARCH=linux-x64 ;; \
-  arm64) OC_ARCH=linux-arm64 ;; \
+  amd64) OC_ARCH=x64 ;; \
+  arm64) OC_ARCH=arm64 ;; \
   *) echo "Unsupported architecture: $(dpkg --print-architecture)" >&2; exit 1 ;; \
   esac; \
   curl -fsSL \
-  "https://github.com/anomalyco/opencode/releases/download/v${OPENCODE_VERSION}/opencode-${OC_ARCH}.tar.gz" \
-  -o /tmp/opencode.tar.gz; \
-  tar -xzf /tmp/opencode.tar.gz -C /usr/local/bin opencode; \
-  rm /tmp/opencode.tar.gz; \
+  "https://registry.npmjs.org/@opencode/cli-linux-${OC_ARCH}/-/cli-linux-${OC_ARCH}-${OPENCODE_VERSION}.tgz" \
+  -o /tmp/opencode.tgz; \
+  tar -xzf /tmp/opencode.tgz -C /usr/local/bin --strip-components=2 package/bin/opencode; \
+  rm /tmp/opencode.tgz; \
   chmod +x /usr/local/bin/opencode
 
 # delta: fetch the pinned GitHub release tarball for the current architecture.
-# Release tags have no "v" prefix (unlike starship/opencode above). Only gnu (not musl)
+# Release tags have no "v" prefix (unlike starship above). Only gnu (not musl)
 # linux targets are published for aarch64, so use gnu for both architectures here.
 RUN set -eux; \
   case "$(dpkg --print-architecture)" in \
