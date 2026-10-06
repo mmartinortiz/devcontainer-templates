@@ -7,7 +7,7 @@ Opinionated Ubuntu-based Dev Container base image (`mcr.microsoft.com/devcontain
 - [uv / uvx](https://docs.astral.sh/uv/) (copied from `ghcr.io/astral-sh/uv`), with fish completions
 - [Starship](https://starship.rs/) prompt (pinned GitHub release binary)
 - [prek](https://github.com/j178/prek) (installed via `uv tool install`), with fish completions
-- [opencode](https://opencode.ai) (pinned GitHub release binary)
+- [opencode](https://opencode.ai) (pinned binary from the `@opencode/cli-linux-*` npm package — V2 is published as Git tags only, no GitHub Releases)
 - [delta](https://dandavison.github.io/delta/) (pinned GitHub release binary), wired into git system-wide as the pager/diff filter (`core.pager`, `interactive.diffFilter`, `delta.navigate`, `merge.conflictstyle=zdiff3` via `git config --system`), with fish completions
 - `vscode`-owned `~/.local`, `~/.local/bin`, `~/.local/share`, `~/.local/state`, `~/.cache`, `~/.config` pre-created, so mounting a volume under e.g. `~/.local/share/opencode` doesn't leave root-owned parent dirs (Docker creates missing mount-point parents as `root:root`)
 
@@ -41,7 +41,7 @@ The image also carries an `org.opencontainers.image.description` describing the 
 | `UV_IMAGE_TAG`    | `0.12.23` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
 | `STARSHIP_VERSION`| `1.26.0` | Starship GitHub release version to install (without the `v` prefix) |
 | `PREK_VERSION`    | `0.5.5`  | `prek` version to install from PyPI; leave empty to install the latest |
-| `OPENCODE_VERSION`| `1.18.34` | opencode GitHub release version to install (without the `v` prefix) |
+| `OPENCODE_VERSION`| `2.0.24` | opencode version to install from the `@opencode/cli-linux-*` npm packages |
 | `DELTA_VERSION`   | `0.20.1` | delta GitHub release version to install (release tags have no `v` prefix) |
 
 Build locally, e.g. to bump Starship:
