@@ -10,11 +10,11 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.5
-ARG OPENCODE_VERSION=2.0.24
+ARG OPENCODE_VERSION=2.0.23
 # sha512 of the per-arch npm tarballs, from `dist.integrity` of
 # `@opencode/cli-linux-{x64,arm64}` (SRI format, base64). Verified at build time.
-ARG OPENCODE_SHA512_X64=WDBunGoImJOYjwUvDDfl0GJiKR/WbATnSXW1QTrK+VDp+oOUNLXo84QTUCBVUqvb8VsseWhs3uyWCD9o9c5JDA==
-ARG OPENCODE_SHA512_ARM64=n+C1XkoIB0NaHK9CQo4gGIc9FRGDhrMdCXO8heEOvUgKsH/0ROxCr3CxUuJaKolL/5+c5u3CoiXsckL+fa52ag==
+ARG OPENCODE_SHA512_X64=5CQisdKXLDXVjUZYF1ROqIH/HS5YUwo4SjEBJ3DndATJL2vFgbvN0pqZQkKQqBjUrZ19jNXDHvp+LP/uGIECAQ==
+ARG OPENCODE_SHA512_ARM64=kuLDSOpFFGCdCS/fdaHZ2yMqXsP4jwYfS0yV4ilYxaB7c0PJ84eY1b/bl2N9JXELXU13I2OFDI+NWzXhyXrxOQ==
 ARG DELTA_VERSION=0.20.1
 # sha256 of the per-arch release tarballs, from the GitHub release's asset `digest`
 # field. Verified at build time. Starship needs no pin: upstream publishes a `.sha256`
