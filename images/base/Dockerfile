@@ -1,5 +1,5 @@
 # Pulls the static uv/uvx binaries from Astral's distroless image.
-ARG UV_IMAGE_TAG=0.12.23
+ARG UV_IMAGE_TAG=0.13.0
 FROM ghcr.io/astral-sh/uv:${UV_IMAGE_TAG} AS uv
 
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
@@ -10,11 +10,11 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ARG UV_IMAGE_TAG
 ARG STARSHIP_VERSION=1.26.0
 ARG PREK_VERSION=0.5.5
-ARG OPENCODE_VERSION=2.0.24
+ARG OPENCODE_VERSION=2.0.27
 # sha512 of the per-arch npm tarballs, from `dist.integrity` of
 # `@opencode/cli-linux-{x64,arm64}` (SRI format, base64). Verified at build time.
-ARG OPENCODE_SHA512_X64=WDBunGoImJOYjwUvDDfl0GJiKR/WbATnSXW1QTrK+VDp+oOUNLXo84QTUCBVUqvb8VsseWhs3uyWCD9o9c5JDA==
-ARG OPENCODE_SHA512_ARM64=n+C1XkoIB0NaHK9CQo4gGIc9FRGDhrMdCXO8heEOvUgKsH/0ROxCr3CxUuJaKolL/5+c5u3CoiXsckL+fa52ag==
+ARG OPENCODE_SHA512_X64=QPGrzBSSs5ATG3nM4XjS4tmWXUB22Di36H0vfMuhKwk6i3PR3Nb4sm+l00gvTdcyCRohYsKwqjvD67T0DPcQLQ==
+ARG OPENCODE_SHA512_ARM64=qK2E8iy7ZyOC1RcbJZuVuzUHHDwg4BxgE405+bPLZjep0cU2yqvifsVB0UptyiVs2GxXfZDbmn2w7y5PW49ssg==
 ARG DELTA_VERSION=0.20.1
 # sha256 of the per-arch release tarballs, from the GitHub release's asset `digest`
 # field. Verified at build time. Starship needs no pin: upstream publishes a `.sha256`
