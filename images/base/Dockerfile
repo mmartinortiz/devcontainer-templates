@@ -30,12 +30,15 @@ LABEL org.opencontainers.image.title="devcontainer-base" \
 
 USER root
 
-# fish + vim via apt. curl/ca-certificates are needed to fetch the starship release tarball.
+# fish + vim + wl-clipboard via apt. curl/ca-certificates are needed to fetch the
+# starship release tarball. wl-clipboard only works if the consumer devcontainer
+# forwards a Wayland socket (WAYLAND_DISPLAY / XDG_RUNTIME_DIR) — not wired up here.
 RUN apt-get update \
   && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends \
   fish \
   vim \
+  wl-clipboard \
   curl \
   ca-certificates \
   && apt-get clean -y \

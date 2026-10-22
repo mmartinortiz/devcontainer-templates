@@ -55,6 +55,9 @@ check "opencode is available" run opencode --version
 check "delta is available" run delta --version
 check "vim is available" run vim --version
 check "fish is available" run fish --version
+# wl-clipboard ships wl-copy + wl-paste; --version exits 0 without needing a Wayland display.
+check "wl-copy is available" run wl-copy --version
+check "wl-paste is available" run wl-paste --version
 
 # Default user / shell
 check "default user is vscode" bash -c "[ \"\$(run whoami)\" = 'vscode' ]"
