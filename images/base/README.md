@@ -38,10 +38,10 @@ The image also carries an `org.opencontainers.image.description` describing the 
 
 | Arg               | Default  | Purpose                                                        |
 | ----------------- | -------- | --------------------------------------------------------------- |
-| `UV_IMAGE_TAG`    | `0.13.0` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
-| `STARSHIP_VERSION`| `1.26.0` | Starship GitHub release version to install (without the `v` prefix) |
-| `PREK_VERSION`    | `0.5.5`  | `prek` version to install from PyPI; leave empty to install the latest |
-| `OPENCODE_VERSION`| `2.0.27` | opencode version to install from the `@opencode/cli-linux-*` npm packages |
+| `UV_IMAGE_TAG`    | `0.13.1` | Tag of `ghcr.io/astral-sh/uv` to copy the `uv`/`uvx` binaries from |
+| `STARSHIP_VERSION`| `1.27.0` | Starship GitHub release version to install (without the `v` prefix) |
+| `PREK_VERSION`    | `0.5.6`  | `prek` version to install from PyPI; leave empty to install the latest |
+| `OPENCODE_VERSION`| `2.0.32` | opencode version to install from the `@opencode/cli-linux-*` npm packages |
 | `DELTA_VERSION`   | `0.20.1` | delta GitHub release version to install (release tags have no `v` prefix) |
 
 Build locally, e.g. to bump Starship:
